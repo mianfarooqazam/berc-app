@@ -65,9 +65,9 @@ export default function RoleSelectionScreen({ navigation }) {
 
       {/* Footer view */}
       <View style={styles.footer}>
-        <Text style={styles.footerHeading}>BERC</Text>
+        <Text style={styles.footerHeading}>BUILDINGS ENERGY RESEARCH CENTER</Text>
         <Text style={styles.footerText}>
-          BUILDINGS ENERGY RESEARCH CENTER
+          BERC AIMS TO BUILD A SUSTAINABLE PAKISTAN BRICK BY BRICK
         </Text>
       </View>
     </SafeAreaView>
