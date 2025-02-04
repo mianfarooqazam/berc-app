@@ -9,6 +9,7 @@ import SplashScreen from './components/Splash/SplashScreen';
 import RoleSelectionScreen from './auth/RoleSelectionScreen';
 import LoginScreen from './auth/LoginScreen';
 import SignupScreen from './auth/SignupScreen';
+import ForgotPasswordScreen from './auth/ForgotPasswordScreen'; 
 
 const Stack = createStackNavigator();
 
@@ -36,6 +37,11 @@ export default function App() {
             <Stack.Screen
               name="Signup"
               component={SignupScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="ForgotPassword"
+              component={ForgotPasswordScreen}
               options={{ headerShown: false }}
             />
           </Stack.Navigator>

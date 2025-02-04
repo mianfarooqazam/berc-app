@@ -1,37 +1,31 @@
-// auth/SignupScreen.js
+// auth/ForgotPasswordScreen.js
 import React, { useState } from 'react';
 import { StyleSheet, Image, View, KeyboardAvoidingView, ScrollView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { TextInput, TouchableRipple, Text } from 'react-native-paper';
 import { ArrowLeft } from 'lucide-react-native';
 
-export default function SignupScreen({ navigation }) {
+export default function ForgotPasswordScreen({ navigation }) {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
 
-  const onSignup = () => {
-    if (password !== confirmPassword) {
-      alert("Passwords don't match");
-      return;
-    }
-    console.log('Signing up as employee with:', email, password);
-    // Implement your signup logic here
+  const onResetPassword = () => {
+    console.log('Resetting password for:', email);
+    // Implement your password reset logic here
   };
 
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <SafeAreaView style={styles.container}>
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
         >
-          {/* Header with back button */}
+          {/* Header with back button in white square box */}
           <View style={styles.header}>
-            <TouchableRipple 
+            <TouchableRipple
               onPress={() => navigation.goBack()}
               rippleColor="rgba(0, 0, 0, 0.1)"
               style={styles.backButton}
@@ -41,18 +35,17 @@ export default function SignupScreen({ navigation }) {
           </View>
 
           {/* Logo */}
-          <Image 
+          <Image
             source={require('../assets/berc-logo.jpeg')}
             style={styles.logo}
           />
 
           {/* Title */}
-          <Text style={styles.title}>Employee Sign Up</Text>
+          <Text style={styles.title}>Forgot Password</Text>
 
-          {/* Form inputs with background #f8f8ff */}
+          {/* Email input with background #f8f8ff */}
           <TextInput
                       mode="outlined"
-
             label="Email"
             value={email}
             onChangeText={setEmail}
@@ -61,43 +54,19 @@ export default function SignupScreen({ navigation }) {
             keyboardType="email-address"
             theme={{ colors: { background: '#f8f8ff' } }}
           />
-          <TextInput
-                      mode="outlined"
 
-            label="Password"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            style={styles.input}
-            theme={{ colors: { background: '#f8f8ff' } }}
-          />
-          <TextInput
-                      mode="outlined"
+          {/* Instruction */}
+          <Text style={styles.instruction}>
+            You will get Verification Code on your Email
+          </Text>
 
-            label="Confirm Password"
-            value={confirmPassword}
-            onChangeText={setConfirmPassword}
-            secureTextEntry
-            style={styles.input}
-            theme={{ colors: { background: '#f8f8ff' } }}
-          />
-
-          {/* Signup button */}
-          <TouchableRipple 
+          {/* Reset Password button */}
+          <TouchableRipple
             style={styles.button}
-            onPress={onSignup}
+            onPress={onResetPassword}
             rippleColor="rgba(0, 0, 0, 0.1)"
           >
-            <Text style={styles.buttonText}>Sign Up</Text>
-          </TouchableRipple>
-
-          {/* Navigation text to Login */}
-          <TouchableRipple 
-            onPress={() => navigation.goBack()}
-            rippleColor="rgba(0, 0, 0, 0.1)"
-            style={styles.loginButton}
-          >
-            <Text style={styles.loginText}>Already have an account? Login</Text>
+            <Text style={styles.buttonText}>Reset Password</Text>
           </TouchableRipple>
         </ScrollView>
       </SafeAreaView>
@@ -137,12 +106,19 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: 10,
   },
   input: {
     width: '100%',
     marginBottom: 10,
     backgroundColor: '#f8f8ff',
+  },
+  instruction: {
+    fontSize: 16,
+    textAlign: 'center',
+    marginTop: 20,  
+    marginBottom: 20,
+    color: '#000',
   },
   button: {
     marginVertical: 10,
@@ -155,12 +131,5 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#fff',
     fontSize: 16,
-  },
-  loginButton: {
-    marginTop: 10,
-  },
-  loginText: {
-    color: '#000',
-    fontSize: 14,
   },
 });
