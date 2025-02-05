@@ -7,7 +7,9 @@ import { auth } from '../../firebase';
 import AdminDrawerContent from './AdminDrawerContent';
 import AdminDashboard from './AdminDashboard';
 import AdminProfileScreen from './AdminProfileScreen';
-// import AssignTaskScreen from './AssignTaskScreen';
+import AdminTaskScreen from './AdminTaskScreen';
+import AdminEmpScreen from './AdminEmpScreen';
+import AdminEventsScreen from './AdminEventsScreen';
 
 const Drawer = createDrawerNavigator();
 
@@ -15,7 +17,7 @@ export default function AdminDrawer() {
   const route = useRoute();
   const navigation = useNavigation();
   // Retrieve the email passed from LoginScreen; fallback to a dummy email if none is provided.
-  const { email } = route.params || { email: 'admin@example.com' };
+  const { email } = route.params || { email: 'example@uetpeshawar.edu.pk' };
 
   // Listen for auth state changes. If the user logs out, reset to RoleSelection.
   useEffect(() => {
@@ -49,12 +51,27 @@ export default function AdminDrawer() {
         component={AdminProfileScreen}
         initialParams={{ email }}
       />
-      {/*
+      {
       <Drawer.Screen
         name="AssignTask"
-        component={AssignTaskScreen}
+        component={AdminTaskScreen}
         initialParams={{ email }}
-      /> */}
+      />
+       }
+       {
+      <Drawer.Screen
+        name="Events"
+        component={AdminEventsScreen}
+        initialParams={{ email }}
+      />
+       }
+        {
+      <Drawer.Screen
+        name="Employee"
+        component={AdminEmpScreen}
+        initialParams={{ email }}
+      />
+       }
     </Drawer.Navigator>
   );
 }

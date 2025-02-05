@@ -3,7 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AppHeader from '../../components/Header/AppHeader'; // adjust the path as needed
 
-export default function AdminTaskScreen({ navigation }) {
+export default function AdminEventsScreen({ navigation }) {
   const handleMenuPress = () => {
     navigation.openDrawer();
   };
@@ -16,13 +16,13 @@ export default function AdminTaskScreen({ navigation }) {
     <SafeAreaView style={styles.container}>
       {/* Reusable Header */}
       <AppHeader
-        title="Tasks"
+        title="Events"
         onMenuPress={handleMenuPress}
         onNotificationPress={handleNotificationPress}
       />
       {/* Screen Content */}
       <View style={styles.content}>
-        <Text>Admin Task Screen</Text>
+        <Text>Admin Events Screen</Text>
       </View>
     </SafeAreaView>
   );
@@ -31,11 +31,11 @@ export default function AdminTaskScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f8ff', // or your preferred background color
-    padding: 20, // Same as AdminDashboard
+    backgroundColor: '#f8f8ff',
+    padding: 20, // Same padding as AdminDashboard
   },
   content: {
     alignItems: 'center',
-    marginTop: 40, // Same as AdminDashboard
+    marginTop: 40, // Same margin as AdminDashboard
   },
 });

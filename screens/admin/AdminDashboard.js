@@ -1,14 +1,12 @@
-// screens/admin/AdminDashboard.js
 import React, { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text, TouchableRipple } from 'react-native-paper';
-import { Menu } from 'lucide-react-native';
-import { signOut, onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { auth } from '../../firebase'; // adjust the path as needed
+import AppHeader from '../../components/Header/AppHeader'; // import the reusable header
 
 export default function AdminDashboard({ navigation, route }) {
-  // Get the email from route params (set via initialParams in AdminDrawer)
   const { email } = route.params || { email: 'admin@example.com' };
 
   // Protect the route using auth state listener (optional)
@@ -24,31 +22,26 @@ export default function AdminDashboard({ navigation, route }) {
     return unsubscribe;
   }, [navigation]);
 
-  const onLogout = async () => {
-    try {
-      await signOut(auth);
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'RoleSelection' }],
-      });
-    } catch (error) {
-      console.error('Error signing out:', error);
-    }
+  
+
+  // Example press handlers
+  const handleMenuPress = () => {
+    navigation.openDrawer();
+  };
+
+  const handleNotificationPress = () => {
+    // Navigate to a Notifications screen or show a dropdown
+    console.log('Notifications pressed');
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header with drawer icon */}
-      <View style={styles.header}>
-        <TouchableRipple
-          onPress={() => navigation.openDrawer()}
-          style={styles.menuButton}
-          rippleColor="rgba(0, 0, 0, 0.1)"
-        >
-          <Menu size={24} color="#000" />
-        </TouchableRipple>
-        <Text style={styles.headerTitle}>Dashboard</Text>
-      </View>
+      {/* Reusable Header */}
+      <AppHeader
+        title="Home"
+        onMenuPress={handleMenuPress}
+        onNotificationPress={handleNotificationPress}
+      />
 
       {/* Content */}
       <View style={styles.content}>
@@ -56,7 +49,8 @@ export default function AdminDashboard({ navigation, route }) {
         <Text style={styles.emailText}>Email: {email}</Text>
       </View>
 
-      {/* (Optional Logout button if you want one in the dashboard as well)
+      {/*
+      Uncomment if you want a logout button here as well
       <TouchableRipple style={styles.logoutButton} onPress={onLogout} rippleColor="rgba(0,0,0,0.1)">
         <Text style={styles.logoutText}>Logout</Text>
       </TouchableRipple>
@@ -70,19 +64,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f8f8ff',
     padding: 20,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  menuButton: {
-    padding: 8,
-    marginRight: 10,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
   },
   content: {
     alignItems: 'center',
