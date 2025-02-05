@@ -4,16 +4,41 @@ import { StyleSheet, Image, View, KeyboardAvoidingView, ScrollView, Platform } f
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { TextInput, TouchableRipple, Text, Switch } from 'react-native-paper';
 import { ArrowLeft } from 'lucide-react-native';
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from '../firebase'; // Import the Firebase auth instance
 
 export default function LoginScreen({ navigation, route }) {
   const { role } = route.params || {};
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [remember, setRemember] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const onLogin = () => {
-    console.log(`Logging in as ${role} with:`, email, password, 'Remember:', remember);
-    // Implement your login logic here
+  const onLogin = async () => {
+    setLoading(true);
+    if (role === 'admin') {
+      try {
+        // Use Firebase Authentication for admin login
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+        console.log('Admin logged in:', user.email);
+        // Reset navigation stack so admin dashboard becomes the new root.
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'AdminDrawer', params: { email: user.email } }],
+        });
+        
+      } catch (error) {
+        console.error('Admin login error:', error);
+        // Add error handling (alert or Snackbar) if needed
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      // Implement employee login (and/or signup) logic here if needed
+      console.log(`Employee login not implemented in this example.`);
+      setLoading(false);
+    }
   };
 
   return (
@@ -26,7 +51,7 @@ export default function LoginScreen({ navigation, route }) {
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
         >
-          {/* Header with back button in white square box */}
+          {/* Header with back button */}
           <View style={styles.header}>
             <TouchableRipple 
               onPress={() => navigation.goBack()}
@@ -48,7 +73,7 @@ export default function LoginScreen({ navigation, route }) {
             {role === 'admin' ? 'Admin Login' : 'Employee Login'}
           </Text>
           
-          {/* Form inputs using outlined mode for complete box style */}
+          {/* Form inputs */}
           <TextInput
             mode="outlined"
             label="Email"
@@ -69,30 +94,31 @@ export default function LoginScreen({ navigation, route }) {
             theme={{ colors: { background: '#f8f8ff' } }}
           />
 
-          {/* Options container for Remember Password */}
-          <View style={styles.optionsContainer}>
-            <View style={styles.rememberContainer}>
-              {/* Switch appears first with green color */}
-              <Switch 
-                value={remember} 
-                onValueChange={() => setRemember(!remember)}
-                style={styles.switch}
-                color="#97d43b"
-              />
-              <Text style={styles.rememberText}>Keep me logged in</Text>
+          {role !== 'admin' && (
+            <View style={styles.optionsContainer}>
+              <View style={styles.rememberContainer}>
+                <Switch 
+                  value={remember} 
+                  onValueChange={() => setRemember(!remember)}
+                  style={styles.switch}
+                  color="#97d43b"
+                />
+                <Text style={styles.rememberText}>Keep me logged in</Text>
+              </View>
             </View>
-          </View>
+          )}
           
-          {/* Login button using TouchableRipple */}
+          {/* Login button */}
           <TouchableRipple 
             style={styles.button}
             onPress={onLogin}
             rippleColor="rgba(0, 0, 0, 0.1)"
+            disabled={loading}
           >
-            <Text style={styles.buttonText}>Login</Text>
+            <Text style={styles.buttonText}>{loading ? 'Logging in...' : 'Login'}</Text>
           </TouchableRipple>
 
-          {/* Forgot Password text below the Login button */}
+          {/* Forgot Password link */}
           <TouchableRipple 
             onPress={() => navigation.navigate('ForgotPassword')}
             rippleColor="rgba(0, 0, 0, 0.1)"
