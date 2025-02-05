@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { View, StyleSheet, Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Drawer, Text, Divider } from "react-native-paper";
-import { Home, User, Clipboard, Mails,Calendar1, Users,LogOut } from "lucide-react-native";
+import { Home, User, Clipboard, Mails,Calendar1, Users,LogOut,CircleAlert } from "lucide-react-native";
 
 export default function AdminDrawerContent({ navigation, email, designation }) {
   const [active, setActive] = useState("home");
@@ -64,6 +64,15 @@ export default function AdminDrawerContent({ navigation, email, designation }) {
             onPress={() => {
               setActive("assign");
               navigation.navigate("AssignTask");
+            }}
+          />
+           <Drawer.Item
+            label="Tasks Status"
+            icon={({ size, color }) => <CircleAlert size={size} color={color} />}
+            active={active === "status"}
+            onPress={() => {
+              setActive("status");
+              navigation.navigate("TaskStatus");
             }}
           />
           <Drawer.Item

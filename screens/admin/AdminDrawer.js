@@ -10,6 +10,7 @@ import AdminProfileScreen from './AdminProfileScreen';
 import AdminTaskScreen from './AdminTaskScreen';
 import AdminEmpScreen from './AdminEmpScreen';
 import AdminEventsScreen from './AdminEventsScreen';
+import AdminTaskStatusScreen from './AdminTaskStatusScreen';
 
 const Drawer = createDrawerNavigator();
 
@@ -55,6 +56,13 @@ export default function AdminDrawer() {
       <Drawer.Screen
         name="AssignTask"
         component={AdminTaskScreen}
+        initialParams={{ email }}
+      />
+       }
+        {
+      <Drawer.Screen
+        name="TaskStatus"
+        component={AdminTaskStatusScreen}
         initialParams={{ email }}
       />
        }
