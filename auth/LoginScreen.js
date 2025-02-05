@@ -189,6 +189,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     textAlign: 'center',
     marginBottom: 30,
+    fontWeight:'bold'
   },
   input: {
     width: '100%',

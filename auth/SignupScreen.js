@@ -138,6 +138,8 @@ const styles = StyleSheet.create({
     fontSize: 24,
     textAlign: 'center',
     marginBottom: 20,
+    fontWeight:'bold'
+
   },
   input: {
     width: '100%',
