@@ -52,34 +52,26 @@ export default function AdminDrawer() {
         component={AdminProfileScreen}
         initialParams={{ email }}
       />
-      {
       <Drawer.Screen
         name="AssignTask"
         component={AdminTaskScreen}
         initialParams={{ email }}
       />
-       }
-        {
       <Drawer.Screen
         name="TaskStatus"
         component={AdminTaskStatusScreen}
         initialParams={{ email }}
       />
-       }
-       {
       <Drawer.Screen
         name="Events"
         component={AdminEventsScreen}
         initialParams={{ email }}
       />
-       }
-        {
       <Drawer.Screen
         name="Employee"
         component={AdminEmpScreen}
         initialParams={{ email }}
       />
-       }
     </Drawer.Navigator>
   );
 }

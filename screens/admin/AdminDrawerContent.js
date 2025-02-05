@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { View, StyleSheet, Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Drawer, Text, Divider } from "react-native-paper";
-import { Home, User, Clipboard, Mails,Calendar1, Users,LogOut,CircleAlert } from "lucide-react-native";
+import { Home, User, Clipboard, Calendar1, Users, LogOut, CircleAlert } from "lucide-react-native";
 
 export default function AdminDrawerContent({ navigation, email, designation }) {
   const [active, setActive] = useState("home");
@@ -15,20 +15,12 @@ export default function AdminDrawerContent({ navigation, email, designation }) {
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View style={styles.container}>
-        {/* Logo Section */}
-        <View style={styles.header}>
-          <Image
-            source={require("../../assets/berc-logo.jpeg")}
-            style={styles.logo}
-          />
-        </View>
+        {/* Logo Section removed */}
 
-        <Divider style={styles.divider} />
-
-        {/* Profile Section */}
+        {/* Profile Section with added gap */}
         <View style={styles.profileContainer}>
           <Image
-            source={require("../../assets/profile.webp")} // update this with your profile image path
+            source={require("../../assets/profile.webp")} // update this with your profile image path if needed.
             style={styles.profilePicture}
           />
           <Text style={styles.email}>{currentEmail}</Text>
@@ -37,8 +29,8 @@ export default function AdminDrawerContent({ navigation, email, designation }) {
 
         <Divider style={styles.divider} />
 
-        {/* Drawer Items */}
-        <Drawer.Section style={styles.drawerSection}>
+        {/* Main Drawer Items */}
+        <Drawer.Section style={styles.drawerSection} showDivider={false}>
           <Drawer.Item
             label="Home"
             icon={({ size, color }) => <Home size={size} color={color} />}
@@ -47,15 +39,7 @@ export default function AdminDrawerContent({ navigation, email, designation }) {
               setActive("home");
               navigation.navigate("Home");
             }}
-          />
-          <Drawer.Item
-            label="My Profile"
-            icon={({ size, color }) => <User size={size} color={color} />}
-            active={active === "profile"}
-            onPress={() => {
-              setActive("profile");
-              navigation.navigate("MyProfile");
-            }}
+            style={active === "home" ? { borderRadius: 10 } : null} // Apply 10px border radius for active item
           />
           <Drawer.Item
             label="Assign Task"
@@ -65,8 +49,9 @@ export default function AdminDrawerContent({ navigation, email, designation }) {
               setActive("assign");
               navigation.navigate("AssignTask");
             }}
+            style={active === "assign" ? { borderRadius: 10 } : null} // Apply 10px border radius for active item
           />
-           <Drawer.Item
+          <Drawer.Item
             label="Tasks Status"
             icon={({ size, color }) => <CircleAlert size={size} color={color} />}
             active={active === "status"}
@@ -74,6 +59,7 @@ export default function AdminDrawerContent({ navigation, email, designation }) {
               setActive("status");
               navigation.navigate("TaskStatus");
             }}
+            style={active === "status" ? { borderRadius: 10 } : null} // Apply 10px border radius for active item
           />
           <Drawer.Item
             label="Events"
@@ -83,8 +69,9 @@ export default function AdminDrawerContent({ navigation, email, designation }) {
               setActive("events");
               navigation.navigate("Events");
             }}
+            style={active === "events" ? { borderRadius: 10 } : null} // Apply 10px border radius for active item
           />
-            <Drawer.Item
+          <Drawer.Item
             label="Employees"
             icon={({ size, color }) => <Users size={size} color={color} />}
             active={active === "employee"}
@@ -92,16 +79,28 @@ export default function AdminDrawerContent({ navigation, email, designation }) {
               setActive("employee");
               navigation.navigate("Employee");
             }}
+            style={active === "employee" ? { borderRadius: 10 } : null} // Apply 10px border radius for active item
           />
+
         </Drawer.Section>
 
-        {/* Logout Section */}
-        <Drawer.Section style={styles.bottomDrawerSection}>
+        {/* Bottom Section: My Profile moved above Logout */}
+        <Drawer.Section style={styles.bottomDrawerSection} showDivider={false}>
+          <Drawer.Item
+            label="My Profile"
+            icon={({ size, color }) => <User size={size} color={color} />}
+            active={active === "profile"}
+            onPress={() => {
+              setActive("profile");
+              navigation.navigate("MyProfile");
+            }}
+            style={active === "profile" ? { borderRadius: 10 } : null} // Apply 10px border radius for active item
+          />
           <Drawer.Item
             label="Logout"
-            icon={({ size, color }) => <LogOut size={size} color={color} />}
+            icon={({ size }) => <LogOut size={size} color={"red"} />}
             onPress={() => {
-              // Here you can also perform signOut logic if desired.
+              // Perform logout logic if desired.
               navigation.reset({
                 index: 0,
                 routes: [{ name: "RoleSelection" }],
@@ -118,21 +117,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  header: {
-    paddingVertical: 20,
-    alignItems: "center",
-  },
-  logo: {
-    width: 120,
-    height: 120,
-    resizeMode: "contain",
-  },
   divider: {
     marginVertical: 10,
   },
   profileContainer: {
     alignItems: "center",
     paddingVertical: 10,
+    marginTop: 40, // Added gap from above
   },
   profilePicture: {
     width: 80,
