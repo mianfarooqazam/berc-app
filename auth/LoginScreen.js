@@ -2,9 +2,9 @@
 import React, { useState } from 'react';
 import { StyleSheet, Image, View, KeyboardAvoidingView, ScrollView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { TextInput, TouchableRipple, Text, Switch } from 'react-native-paper';
+import { TextInput, TouchableRipple, Text, Switch, Snackbar } from 'react-native-paper';
 import { ArrowLeft } from 'lucide-react-native';
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase'; // Import the Firebase auth instance
 
 export default function LoginScreen({ navigation, route }) {
@@ -13,6 +13,7 @@ export default function LoginScreen({ navigation, route }) {
   const [password, setPassword] = useState('');
   const [remember, setRemember] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState(''); // State for error message
 
   const onLogin = async () => {
     setLoading(true);
@@ -22,15 +23,15 @@ export default function LoginScreen({ navigation, route }) {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
         console.log('Admin logged in:', user.email);
-        // Reset navigation stack so admin dashboard becomes the new root.
+        // Reset navigation stack so admin drawer becomes the new root.
         navigation.reset({
           index: 0,
           routes: [{ name: 'AdminDrawer', params: { email: user.email } }],
         });
-        
       } catch (error) {
         console.error('Admin login error:', error);
-        // Add error handling (alert or Snackbar) if needed
+        // Set a toast message on wrong credentials or any error
+        setErrorMsg('Invalid credentials. Please try again.');
       } finally {
         setLoading(false);
       }
@@ -44,7 +45,7 @@ export default function LoginScreen({ navigation, route }) {
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <SafeAreaView style={styles.container}>
         <ScrollView
@@ -53,7 +54,7 @@ export default function LoginScreen({ navigation, route }) {
         >
           {/* Header with back button */}
           <View style={styles.header}>
-            <TouchableRipple 
+            <TouchableRipple
               onPress={() => navigation.goBack()}
               rippleColor="rgba(0, 0, 0, 0.1)"
               style={styles.backButton}
@@ -63,16 +64,16 @@ export default function LoginScreen({ navigation, route }) {
           </View>
 
           {/* Logo */}
-          <Image 
-            source={require('../assets/berc-logo.jpeg')} 
-            style={styles.logo} 
+          <Image
+            source={require('../assets/berc-logo.jpeg')}
+            style={styles.logo}
           />
-          
+
           {/* Title */}
           <Text style={styles.title}>
             {role === 'admin' ? 'Admin Login' : 'Employee Login'}
           </Text>
-          
+
           {/* Form inputs */}
           <TextInput
             mode="outlined"
@@ -97,8 +98,8 @@ export default function LoginScreen({ navigation, route }) {
           {role !== 'admin' && (
             <View style={styles.optionsContainer}>
               <View style={styles.rememberContainer}>
-                <Switch 
-                  value={remember} 
+                <Switch
+                  value={remember}
                   onValueChange={() => setRemember(!remember)}
                   style={styles.switch}
                   color="#97d43b"
@@ -107,19 +108,21 @@ export default function LoginScreen({ navigation, route }) {
               </View>
             </View>
           )}
-          
+
           {/* Login button */}
-          <TouchableRipple 
+          <TouchableRipple
             style={styles.button}
             onPress={onLogin}
             rippleColor="rgba(0, 0, 0, 0.1)"
             disabled={loading}
           >
-            <Text style={styles.buttonText}>{loading ? 'Logging in...' : 'Login'}</Text>
+            <Text style={styles.buttonText}>
+              {loading ? 'Logging in...' : 'Login'}
+            </Text>
           </TouchableRipple>
 
           {/* Forgot Password link */}
-          <TouchableRipple 
+          <TouchableRipple
             onPress={() => navigation.navigate('ForgotPassword')}
             rippleColor="rgba(0, 0, 0, 0.1)"
             style={styles.forgotContainer}
@@ -129,7 +132,7 @@ export default function LoginScreen({ navigation, route }) {
 
           {/* Render signup button only for employees */}
           {role !== 'admin' && (
-            <TouchableRipple 
+            <TouchableRipple
               onPress={() => navigation.navigate('Signup')}
               rippleColor="rgba(0, 0, 0, 0.1)"
               style={styles.signupButton}
@@ -138,6 +141,16 @@ export default function LoginScreen({ navigation, route }) {
             </TouchableRipple>
           )}
         </ScrollView>
+
+        {/* Snackbar for error messages */}
+        <Snackbar
+          visible={!!errorMsg}
+          onDismiss={() => setErrorMsg('')}
+          duration={3000}
+          style={{ backgroundColor: 'red' }}
+        >
+          {errorMsg}
+        </Snackbar>
       </SafeAreaView>
     </KeyboardAvoidingView>
   );
@@ -175,7 +188,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     textAlign: 'center',
-    marginBottom: 30, 
+    marginBottom: 30,
   },
   input: {
     width: '100%',
