@@ -13,9 +13,11 @@ import {
   Title,
   Chip,
   Text,
+  Snackbar,
+  Divider,
 } from 'react-native-paper';
 import AppHeader from '../../components/Header/AppHeader'; // adjust the path as needed
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, addDoc } from 'firebase/firestore';
 import { db } from '../../firebase'; // Ensure you export your Firestore instance
 
 export default function AdminTaskScreen({ navigation }) {
@@ -31,6 +33,10 @@ export default function AdminTaskScreen({ navigation }) {
 
   // Refreshing state for pull-to-refresh
   const [refreshing, setRefreshing] = useState(false);
+
+  // Snackbar state for success or error messages
+  const [snackbarVisible, setSnackbarVisible] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
 
   const handleMenuPress = () => {
     navigation.openDrawer();
@@ -86,14 +92,30 @@ export default function AdminTaskScreen({ navigation }) {
     { label: 'Low', value: 'Low', color: '#00e676' },
   ];
 
-  const handleSubmit = () => {
-    // Replace this with your logic to process or save the task.
-    console.log('Task Submitted:', {
-      assignedTo: selectedEmployee,
-      priority,
-      taskName,
-      comments,
-    });
+  // Submit handler writes task data to the "assign_tasks" collection.
+  const handleSubmit = async () => {
+    try {
+      const docRef = await addDoc(collection(db, 'assign_tasks'), {
+        employee_name: selectedEmployee,
+        priority: priority,
+        task_name: taskName,
+        comments: comments,
+      });
+      console.log('Task Submitted with ID:', docRef.id);
+      setSnackbarMessage('Task submitted successfully!');
+      setSnackbarVisible(true);
+      // Optionally, reset the form inputs after successful submission
+      setEmployeeSearch('');
+      setSelectedEmployee('');
+      setEmployeeSuggestions([]);
+      setPriority('');
+      setTaskName('');
+      setComments('');
+    } catch (error) {
+      console.error('Error submitting task:', error);
+      setSnackbarMessage('Error submitting task. Please try again.');
+      setSnackbarVisible(true);
+    }
   };
 
   // When user performs pull-to-refresh, reset all form inputs and re-fetch employees
@@ -204,6 +226,13 @@ export default function AdminTaskScreen({ navigation }) {
           <Text style={styles.buttonText}>Submit Task</Text>
         </TouchableRipple>
       </ScrollView>
+      <Snackbar
+        visible={snackbarVisible}
+        onDismiss={() => setSnackbarVisible(false)}
+        duration={3000}
+      >
+        {snackbarMessage}
+      </Snackbar>
     </SafeAreaView>
   );
 }
@@ -220,15 +249,15 @@ const styles = StyleSheet.create({
   },
   autoSuggestContainer: {
     position: 'relative',
-    marginBottom: 15, // Reduced gap after employee auto-suggest container
+    marginBottom: 15,
   },
   input: {
     backgroundColor: '#f8f8ff',
-    marginBottom: 20, // Gap between individual inputs
+    marginBottom: 20,
   },
   suggestionsContainer: {
     position: 'absolute',
-    top: 60, // adjust based on TextInput height
+    top: 60,
     left: 0,
     right: 0,
     zIndex: 10,
@@ -248,7 +277,7 @@ const styles = StyleSheet.create({
   chipsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    marginBottom: 20, // Gap below chips remains unchanged
+    marginBottom: 20,
   },
   chip: {
     marginRight: 8,
@@ -262,7 +291,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   button: {
-    marginTop: 20, // Gap above button
+    marginTop: 20,
     backgroundColor: '#97d43b',
     borderRadius: 4,
     paddingVertical: 12,
