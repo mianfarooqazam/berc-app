@@ -13,7 +13,6 @@ import {
   Title,
   Chip,
   Text,
-  Button,
 } from 'react-native-paper';
 import {
   DatePickerModal,
