@@ -62,7 +62,7 @@ export default function AdminDrawerContent({ navigation, email, designation }) {
             style={active === "status" ? { borderRadius: 10 } : null} // Apply 10px border radius for active item
           />
           <Drawer.Item
-            label="Events"
+            label="Upcoming Events"
             icon={({ size, color }) => <Calendar1 size={size} color={color} />}
             active={active === "events"}
             onPress={() => {
