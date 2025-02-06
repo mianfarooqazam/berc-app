@@ -213,17 +213,22 @@ const styles = StyleSheet.create({
     elevation: 3,
     position: 'relative',
     paddingTop: 20,
-    backgroundColor: "#f8f8ff"
+    backgroundColor: '#f8f8ff',
   },
   cardHeader: {
     position: 'absolute',
     top: 8,
     right: 8,
   },
+  // Updated taskNumber style for a blue background (same as AdminEventsScreen)
   taskNumber: {
+    backgroundColor: '#2196F3',
+    color: '#fff',
+    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
     fontWeight: 'bold',
-    fontSize: 16,
-    color: '#000',
+    fontSize: 12,
   },
   fieldRow: {
     flexDirection: 'row',
