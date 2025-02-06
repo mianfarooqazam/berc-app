@@ -13,12 +13,30 @@ import {
   Title,
   Chip,
   Text,
-  Snackbar,
-  Divider,
+  Button,
 } from 'react-native-paper';
+import {
+  DatePickerModal,
+  registerTranslation,
+} from 'react-native-paper-dates';
+import Toast from 'react-native-toast-message';
 import AppHeader from '../../components/Header/AppHeader'; // adjust the path as needed
 import { collection, getDocs, addDoc } from 'firebase/firestore';
 import { db } from '../../firebase'; // Ensure you export your Firestore instance
+
+// Register a complete English translation for react-native-paper-dates.
+registerTranslation('en', {
+  save: 'Save',
+  cancel: 'Cancel',
+  close: 'Close',            // Added missing key.
+  typeInDate: 'Type in date', // Added missing key.
+  selectSingle: 'Select date',
+  selectMultiple: 'Select dates',
+  selectRange: 'Select date range',
+  notAccordingToPlan: 'Not available',
+  previous: 'Previous',
+  next: 'Next',
+});
 
 export default function AdminTaskScreen({ navigation }) {
   const [employees, setEmployees] = useState([]);
@@ -31,12 +49,12 @@ export default function AdminTaskScreen({ navigation }) {
   const [taskName, setTaskName] = useState('');
   const [comments, setComments] = useState('');
 
+  // Deadline state using react-native-paper-dates modal
+  const [deadline, setDeadline] = useState(null);
+  const [calendarVisible, setCalendarVisible] = useState(false);
+
   // Refreshing state for pull-to-refresh
   const [refreshing, setRefreshing] = useState(false);
-
-  // Snackbar state for success or error messages
-  const [snackbarVisible, setSnackbarVisible] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
 
   const handleMenuPress = () => {
     navigation.openDrawer();
@@ -65,7 +83,6 @@ export default function AdminTaskScreen({ navigation }) {
   }, []);
 
   // Update suggestions as the user types.
-  // If employeeSearch exactly matches the selectedEmployee, no suggestions are shown.
   useEffect(() => {
     if (employeeSearch.length > 0 && employeeSearch !== selectedEmployee) {
       const suggestions = employees.filter((employee) =>
@@ -92,18 +109,42 @@ export default function AdminTaskScreen({ navigation }) {
     { label: 'Low', value: 'Low', color: '#00e676' },
   ];
 
+  // Calendar modal functions using react-native-paper-dates
+  const showCalendar = () => setCalendarVisible(true);
+  const hideCalendar = () => setCalendarVisible(false);
+  const handleConfirmDate = ({ date }) => {
+    setDeadline(date);
+    hideCalendar();
+  };
+
+  // Format the selected deadline as "Weekday day, Month"
+  // Example: "Saturday 21, January"
+  const formattedDeadline = deadline
+    ? `${deadline.toLocaleDateString('en-US', { weekday: 'long' })} ${deadline.getDate()}, ${deadline.toLocaleDateString('en-US', {
+        month: 'long',
+      })}`
+    : '';
+
+  // Prepare today's date with the time reset to midnight
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
   // Submit handler writes task data to the "assign_tasks" collection.
   const handleSubmit = async () => {
     try {
-      const docRef = await addDoc(collection(db, 'assign_tasks'), {
+      await addDoc(collection(db, 'assign_tasks'), {
         employee_name: selectedEmployee,
         priority: priority,
         task_name: taskName,
         comments: comments,
+        // Save the deadline as a Date object (Firestore will convert it to a timestamp)
+        deadline: deadline,
       });
-      console.log('Task Submitted with ID:', docRef.id);
-      setSnackbarMessage('Task submitted successfully!');
-      setSnackbarVisible(true);
+      console.log('Task submitted successfully!');
+      Toast.show({
+        type: 'success',
+        text1: 'Task submitted successfully!',
+      });
       // Optionally, reset the form inputs after successful submission
       setEmployeeSearch('');
       setSelectedEmployee('');
@@ -111,10 +152,13 @@ export default function AdminTaskScreen({ navigation }) {
       setPriority('');
       setTaskName('');
       setComments('');
+      setDeadline(null);
     } catch (error) {
       console.error('Error submitting task:', error);
-      setSnackbarMessage('Error submitting task. Please try again.');
-      setSnackbarVisible(true);
+      Toast.show({
+        type: 'error',
+        text1: 'Error submitting task. Please try again.',
+      });
     }
   };
 
@@ -128,6 +172,7 @@ export default function AdminTaskScreen({ navigation }) {
     setPriority('');
     setTaskName('');
     setComments('');
+    setDeadline(null);
     // Re-fetch employee data
     await fetchEmployees();
     setRefreshing(false);
@@ -217,22 +262,43 @@ export default function AdminTaskScreen({ navigation }) {
           style={styles.input}
         />
 
+        {/* Deadline Selection Button */}
+        <TouchableRipple
+          onPress={showCalendar}
+          style={[
+            styles.deadlineButton,
+            deadline && styles.deadlineButtonSelected,
+          ]}
+          rippleColor="#c8c8c8"
+        >
+          <Text style={styles.deadlineButtonText}>
+            {deadline ? formattedDeadline : 'Select Deadline'}
+          </Text>
+        </TouchableRipple>
+
+        {/* Date Picker Modal from react-native-paper-dates */}
+        <DatePickerModal
+          mode="single"
+          visible={calendarVisible}
+          onDismiss={hideCalendar}
+          date={deadline || new Date()}
+          onConfirm={handleConfirmDate}
+          label="Deadline"
+          locale="en"
+          // Disable dates before today (allowing today's date)
+          validRange={{ startDate: today }}
+        />
+
         {/* Submit Button using TouchableRipple */}
         <TouchableRipple
           onPress={handleSubmit}
-          style={styles.button}
+          style={styles.submitButton}
           rippleColor="#c8c8c8"
         >
-          <Text style={styles.buttonText}>Submit Task</Text>
+          <Text style={styles.submitButtonText}>Submit Task</Text>
         </TouchableRipple>
       </ScrollView>
-      <Snackbar
-        visible={snackbarVisible}
-        onDismiss={() => setSnackbarVisible(false)}
-        duration={3000}
-      >
-        {snackbarMessage}
-      </Snackbar>
+      {/* Remove Snackbar and use Toast instead */}
     </SafeAreaView>
   );
 }
@@ -290,14 +356,30 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
   },
-  button: {
+  deadlineButton: {
+    backgroundColor: '#2196f3',
+    borderRadius: 4,
+    paddingVertical: 14,
+    paddingHorizontal: 10,
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  // When a deadline is selected, use a red background.
+  deadlineButtonSelected: {
+    backgroundColor: 'red',
+  },
+  deadlineButtonText: {
+    color: '#fff',
+    fontSize: 16,
+  },
+  submitButton: {
     marginTop: 20,
     backgroundColor: '#97d43b',
     borderRadius: 4,
-    paddingVertical: 12,
+    paddingVertical: 14,
     alignItems: 'center',
   },
-  buttonText: {
+  submitButtonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
