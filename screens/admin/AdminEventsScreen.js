@@ -258,7 +258,7 @@ export default function AdminEventsScreen({ navigation }) {
               {/* Participants selection autocomplete */}
               <TextInput
                 mode="outlined"
-                label="Participants"
+                label="Employee"
                 value={participantsInput}
                 onChangeText={setParticipantsInput}
                 style={styles.input}
