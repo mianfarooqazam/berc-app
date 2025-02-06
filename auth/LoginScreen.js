@@ -1,10 +1,23 @@
 // auth/LoginScreen.js
 import React, { useState } from 'react';
-import { StyleSheet, Image, View, KeyboardAvoidingView, ScrollView, Platform } from 'react-native';
+import {
+  StyleSheet,
+  Image,
+  View,
+  KeyboardAvoidingView,
+  ScrollView,
+  Platform,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { TextInput, TouchableRipple, Text, Switch, Snackbar } from 'react-native-paper';
+import {
+  TextInput,
+  TouchableRipple,
+  Text,
+  Switch,
+  Snackbar,
+} from 'react-native-paper';
 import { ArrowLeft } from 'lucide-react-native';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { auth } from '../firebase'; // Import the Firebase auth instance
 
 export default function LoginScreen({ navigation, route }) {
@@ -15,29 +28,48 @@ export default function LoginScreen({ navigation, route }) {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(''); // State for error message
 
+  // List of admin UIDs
+  const adminUIDs = ['HOm9vRZimzgAAQhIImK2gykGNzM2', 'S8HdFutKGdNV3A0T60kfJn5mg7E3'];
+
   const onLogin = async () => {
     setLoading(true);
-    if (role === 'admin') {
-      try {
-        // Use Firebase Authentication for admin login
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
+    try {
+      // Sign in with email and password for both roles
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      if (role === 'admin') {
+        // For admin, ensure the user is one of the allowed admin UIDs.
+        if (!adminUIDs.includes(user.uid)) {
+          setErrorMsg('You are not authorized as an admin.');
+          setLoading(false);
+          return;
+        }
         console.log('Admin logged in:', user.email);
         // Reset navigation stack so admin drawer becomes the new root.
         navigation.reset({
           index: 0,
           routes: [{ name: 'AdminDrawer', params: { email: user.email } }],
         });
-      } catch (error) {
-        console.error('Admin login error:', error);
-        // Set a toast message on wrong credentials or any error
-        setErrorMsg('Invalid credentials. Please try again.');
-      } finally {
-        setLoading(false);
+      } else {
+        // Employee login branch.
+        // If the user is an admin, prevent logging in as an employee.
+        if (adminUIDs.includes(user.uid)) {
+          setErrorMsg('This account is reserved for admin access. Please use the admin login.');
+          setLoading(false);
+          return;
+        }
+        console.log('Employee logged in:', user.email);
+        // Reset navigation stack so that the employee drawer becomes the new root.
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'EmployeeDrawer', params: { email: user.email } }],
+        });
       }
-    } else {
-      // Implement employee login (and/or signup) logic here if needed
-      console.log(`Employee login not implemented in this example.`);
+    } catch (error) {
+      console.error(`${role} login error:`, error);
+      setErrorMsg('Invalid credentials. Please try again.');
+    } finally {
       setLoading(false);
     }
   };
@@ -48,10 +80,7 @@ export default function LoginScreen({ navigation, route }) {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <SafeAreaView style={styles.container}>
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-        >
+        <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
           {/* Header with back button */}
           <View style={styles.header}>
             <TouchableRipple
@@ -64,10 +93,7 @@ export default function LoginScreen({ navigation, route }) {
           </View>
 
           {/* Logo */}
-          <Image
-            source={require('../assets/berc-logo.jpeg')}
-            style={styles.logo}
-          />
+          <Image source={require('../assets/berc-logo.jpeg')} style={styles.logo} />
 
           {/* Title */}
           <Text style={styles.title}>
@@ -189,7 +215,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     textAlign: 'center',
     marginBottom: 30,
-    fontWeight:'bold'
+    fontWeight: 'bold',
   },
   input: {
     width: '100%',

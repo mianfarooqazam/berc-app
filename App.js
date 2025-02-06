@@ -1,3 +1,4 @@
+// App.js
 import * as React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -10,9 +11,9 @@ import RoleSelectionScreen from './auth/RoleSelectionScreen';
 import LoginScreen from './auth/LoginScreen';
 import SignupScreen from './auth/SignupScreen';
 import ForgotPasswordScreen from './auth/ForgotPasswordScreen';
-
-// Import the admin drawer navigator from screens/admin
 import AdminDrawer from './screens/admin/AdminDrawer';
+// Import the new employee drawer screen
+import EmployeeDrawer from './screens/employee/EmployeeDrawer';
 
 const Stack = createStackNavigator();
 
@@ -47,15 +48,18 @@ export default function App() {
               component={ForgotPasswordScreen}
               options={{ headerShown: false }}
             />
-            {/* After admin login, navigate to AdminDrawer */}
             <Stack.Screen
               name="AdminDrawer"
               component={AdminDrawer}
               options={{ headerShown: false, gestureEnabled: false }}
             />
+            <Stack.Screen
+              name="EmployeeDrawer"
+              component={EmployeeDrawer}
+              options={{ headerShown: false, gestureEnabled: false }}
+            />
           </Stack.Navigator>
         </NavigationContainer>
-        {/* Simply render Toast without attaching a ref */}
         <Toast />
       </SafeAreaProvider>
     </PaperProvider>
