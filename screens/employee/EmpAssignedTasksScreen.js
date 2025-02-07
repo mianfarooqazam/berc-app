@@ -5,13 +5,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from 'react-native-paper';
 import AppHeader from '../../components/Header/AppHeader'; // Adjust the import path as needed
 
-export default function EmployeeEventsScreen({ navigation, route }) {
+export default function EmpAssignedTasksScreen({ navigation, route }) {
   const { email } = route.params || {};
 
   return (
     <SafeAreaView style={styles.container}>
       <AppHeader
-        title="Upcoming Events"
+        title="Assigned Tasks"
         onMenuPress={() => navigation.toggleDrawer()}
         onNotificationPress={() => {
           // Handle notification press if needed.
@@ -20,8 +20,8 @@ export default function EmployeeEventsScreen({ navigation, route }) {
       />
 
       <View style={styles.content}>
-        <Text style={styles.heading}>Employee Events</Text>
-        <Text style={styles.text}>Events content goes here.</Text>
+        <Text style={styles.heading}>Tasks Assigned</Text>
+        <Text style={styles.text}>Tasks Assigned to you.</Text>
       </View>
     </SafeAreaView>
   );

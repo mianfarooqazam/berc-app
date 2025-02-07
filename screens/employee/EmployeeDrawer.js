@@ -8,6 +8,7 @@ import EmployeeDrawerContent from './EmployeeDrawerContent';
 import EmpDashboard from './EmpDashboard'; // Your dashboard screen (home)
 import EmployeeEventsScreen from './EmployeeEventsScreen';
 import EmployeeProfileScreen from './EmployeeProfileScreen';
+import EmpAssignedTasksScreen from './EmpAssignedTasksScreen';
 
 const Drawer = createDrawerNavigator();
 
@@ -42,6 +43,11 @@ export default function EmployeeDrawer() {
         component={EmpDashboard}
         initialParams={{ email }}
       />
+      <Drawer.Screen
+      name="AssignedTasks"
+      component={EmpAssignedTasksScreen}
+      initialParams={{ email }}
+    />
       <Drawer.Screen
         name="Events"
         component={EmployeeEventsScreen}

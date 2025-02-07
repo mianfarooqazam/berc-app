@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { View, StyleSheet, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Drawer, Text, Divider } from 'react-native-paper';
-import { Home, Calendar1, User, LogOut } from 'lucide-react-native';
+import { Home, Calendar1, User, LogOut, CircleAlert } from 'lucide-react-native';
 
 export default function EmployeeDrawerContent({ navigation, email }) {
   const [active, setActive] = useState("home");
@@ -37,7 +37,17 @@ export default function EmployeeDrawerContent({ navigation, email }) {
             style={active === "home" ? { borderRadius: 10 } : null}
           />
           <Drawer.Item
-            label="Events"
+            label="Assigned Tasks"
+            icon={({ size, color }) => <CircleAlert size={size} color={color} />}
+            active={active === "assignedTasks"}
+            onPress={() => {
+              setActive("assignedTasks");
+              navigation.navigate("AssignedTasks");
+            }}
+            style={active === "assignedTasks" ? { borderRadius: 10 } : null}
+          />
+          <Drawer.Item
+            label="Upcoming Events"
             icon={({ size, color }) => <Calendar1 size={size} color={color} />}
             active={active === "events"}
             onPress={() => {

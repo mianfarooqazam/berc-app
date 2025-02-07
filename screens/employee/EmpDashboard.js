@@ -27,7 +27,7 @@ export default function EmpDashboard({ navigation, route }) {
     <SafeAreaView style={styles.container}>
       {/* Shared App Header */}
       <AppHeader
-        title="Employee Dashboard"
+        title="Home"
         onMenuPress={() => navigation.toggleDrawer()}
         onNotificationPress={() => {
           // Handle notification press if needed.
