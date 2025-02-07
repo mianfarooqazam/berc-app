@@ -18,14 +18,14 @@ import { db } from "../../firebase"; // Ensure the correct path to your firebase
 export default function AdminDrawerContent({ navigation, email, designation }) {
   const [active, setActive] = useState("home");
   const [employeeId, setEmployeeId] = useState(null);
-
-  // Use the provided email and designation (with fallback values if necessary)
+  const [employeeName, setEmployeeName] = useState("");
+  // Initialize designation from props with a fallback of "Director"
   const currentEmail = email || "admin@example.com";
-  const currentDesignation = designation || "Director";
+  const [employeeDesignation, setEmployeeDesignation] = useState(designation || "Director");
 
   useEffect(() => {
-    // Function to fetch the employee_id if the logged in email matches an employee_email in Firestore
-    async function fetchEmployeeId() {
+    // Function to fetch the employee data if the logged-in email matches an employee_email in Firestore
+    async function fetchEmployeeData() {
       try {
         const q = query(
           collection(db, "employees"),
@@ -33,15 +33,18 @@ export default function AdminDrawerContent({ navigation, email, designation }) {
         );
         const querySnapshot = await getDocs(q);
         if (!querySnapshot.empty) {
-          // If a document is found, retrieve the employee_id
           const employeeData = querySnapshot.docs[0].data();
           setEmployeeId(employeeData.employee_id);
+          setEmployeeName(employeeData.name);
+          if (employeeData.designation) {
+            setEmployeeDesignation(employeeData.designation);
+          }
         }
       } catch (error) {
-        console.error("Error fetching employee ID:", error);
+        console.error("Error fetching employee data:", error);
       }
     }
-    fetchEmployeeId();
+    fetchEmployeeData();
   }, [currentEmail]);
 
   return (
@@ -53,12 +56,20 @@ export default function AdminDrawerContent({ navigation, email, designation }) {
             source={require("../../assets/profile.webp")}
             style={styles.profilePicture}
           />
-          <Text style={styles.email}>{currentEmail}</Text>
-          <Text style={styles.designation}>{currentDesignation}</Text>
-          {/* Only display the employee id if one was found */}
+          {/* Display in the order:
+              1. Name (bold)
+              2. Designation (bold)
+              3. Employee ID (small, non-bold)
+              4. Email (small, non-bold)
+          */}
+          {employeeName ? (
+            <Text style={styles.username}>{employeeName}</Text>
+          ) : null}
+          <Text style={styles.designation}>{employeeDesignation}</Text>
           {employeeId && (
             <Text style={styles.employeeId}>Employee ID: {employeeId}</Text>
           )}
+          <Text style={styles.email}>{currentEmail}</Text>
         </View>
 
         <Divider style={styles.divider} />
@@ -163,18 +174,28 @@ const styles = StyleSheet.create({
     borderRadius: 40,
     marginBottom: 10,
   },
-  email: {
+  username: {
     fontSize: 16,
-    fontWeight: "bold",
+    color: "#000",
+    marginBottom: 5,
+    fontWeight: "bold", // Bold for Name
   },
   designation: {
-    fontSize: 14,
-    color: "#888",
+    fontSize: 16,
+    color: "#000",
+    fontWeight: "bold", // Bold for Designation
   },
   employeeId: {
-    fontSize: 14,
+    fontSize: 8,
     color: "#444",
-    marginTop: 5,
+    marginBottom: 5,
+    fontWeight: "normal", // Not bold
+  },
+  email: {
+    fontSize: 8,
+    color: "#444",
+    marginBottom: 5,
+    fontWeight: "normal", // Not bold
   },
   drawerSection: {
     marginTop: 10,

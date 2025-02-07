@@ -5,16 +5,17 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Drawer, Text, Divider } from 'react-native-paper';
 import { Home, Calendar1, User, LogOut, CircleAlert } from 'lucide-react-native';
 import { collection, query, where, getDocs } from 'firebase/firestore';
-import { db } from '../../firebase'; // Make sure the path is correct
+import { db } from '../../firebase'; // Ensure the path is correct
 
 export default function EmployeeDrawerContent({ navigation, email }) {
   const [active, setActive] = useState("home");
-  const currentEmail = email || "employee@example.com";
+  const currentEmail = email || "employee@uet.com";
   const [employeeId, setEmployeeId] = useState(null);
+  const [employeeName, setEmployeeName] = useState(""); // For the username
+  const [employeeDesignation, setEmployeeDesignation] = useState("Employee");
 
   useEffect(() => {
-    // Query the "employees" collection for a document where employee_email matches the logged-in email.
-    async function fetchEmployeeId() {
+    async function fetchEmployeeData() {
       try {
         const q = query(
           collection(db, "employees"),
@@ -22,15 +23,18 @@ export default function EmployeeDrawerContent({ navigation, email }) {
         );
         const querySnapshot = await getDocs(q);
         if (!querySnapshot.empty) {
-          // Extract employee_id from the first matching document.
           const employeeData = querySnapshot.docs[0].data();
           setEmployeeId(employeeData.employee_id);
+          setEmployeeName(employeeData.name);
+          if (employeeData.designation) {
+            setEmployeeDesignation(employeeData.designation);
+          }
         }
       } catch (error) {
-        console.error("Error fetching employee ID:", error);
+        console.error("Error fetching employee data:", error);
       }
     }
-    fetchEmployeeId();
+    fetchEmployeeData();
   }, [currentEmail]);
 
   return (
@@ -42,12 +46,20 @@ export default function EmployeeDrawerContent({ navigation, email }) {
             source={require("../../assets/profile.webp")} // Replace with your employee profile image path.
             style={styles.profilePicture}
           />
-          <Text style={styles.email}>{currentEmail}</Text>
-          <Text style={styles.designation}>Employee</Text>
-          {/* Display the employee ID if it was fetched */}
+          {/* Display the data in the following order:
+              1. Name (bold)
+              2. Designation (bold)
+              3. Employee ID (not bold, 8px font size)
+              4. Email (not bold, 8px font size)
+          */}
+          {employeeName ? (
+            <Text style={styles.username}>{employeeName}</Text>
+          ) : null}
+          <Text style={styles.designation}>{employeeDesignation}</Text>
           {employeeId && (
             <Text style={styles.employeeId}>Employee ID: {employeeId}</Text>
           )}
+          <Text style={styles.email}>{currentEmail}</Text>
         </View>
 
         <Divider style={styles.divider} />
@@ -102,7 +114,6 @@ export default function EmployeeDrawerContent({ navigation, email }) {
             label="Logout"
             icon={({ size }) => <LogOut size={size} color={"red"} />}
             onPress={() => {
-              // Reset navigation stack back to RoleSelection.
               navigation.reset({
                 index: 0,
                 routes: [{ name: "RoleSelection" }],
@@ -133,18 +144,28 @@ const styles = StyleSheet.create({
     borderRadius: 40,
     marginBottom: 10,
   },
+  employeeId: {
+    fontSize: 8,
+    color: "#444",
+    marginBottom: 5,
+    fontWeight: "normal", // Not bold
+  },
   email: {
+    fontSize: 8,
+    color: "#444",
+    marginBottom: 5,
+    fontWeight: "normal", // Not bold
+  },
+  username: {
     fontSize: 16,
-    fontWeight: "bold",
+    color: "#000",
+    marginBottom: 5,
+    fontWeight: "bold", // Bold for Name (username)
   },
   designation: {
-    fontSize: 14,
-    color: "#888",
-  },
-  employeeId: {
-    fontSize: 14,
-    color: "#444",
-    marginTop: 5,
+    fontSize: 16,
+    color: "#000",
+    fontWeight: "bold", // Bold for Designation
   },
   drawerSection: {
     marginTop: 10,
