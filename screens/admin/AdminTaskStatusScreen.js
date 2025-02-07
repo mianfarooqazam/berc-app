@@ -37,7 +37,7 @@ export default function AdminTaskStatusScreen({ navigation }) {
     console.log('Notifications pressed');
   };
 
-  // Fetch tasks from Firestore and assign a random status for demo purposes.
+  // Fetch tasks from Firestore and mark them as Pending.
   // Reverse the array so that the last task added appears on top.
   const fetchTasks = async () => {
     try {
@@ -46,8 +46,8 @@ export default function AdminTaskStatusScreen({ navigation }) {
         .map((doc) => ({
           id: doc.id,
           ...doc.data(),
-          // Assign a random status only once for demo consistency
-          status: Math.random() < 0.5 ? 'Completed' : 'Pending',
+          // Mark everything as Pending for now.
+          status: 'Pending',
         }))
         .reverse();
       setTasks(tasksData);
@@ -82,7 +82,7 @@ export default function AdminTaskStatusScreen({ navigation }) {
     return task.status === filter;
   });
 
-  // Handle card press to show modal
+  // Handle card press to show modal with task details
   const handleCardPress = (task) => {
     setSelectedTask(task);
     setVisible(true);
@@ -114,7 +114,7 @@ export default function AdminTaskStatusScreen({ navigation }) {
           <TouchableRipple
             style={[
               styles.filterButton,
-              { backgroundColor: filter === 'Completed' ? '#97d43b' : '#ddd' },
+              { backgroundColor: filter === 'Completed' ? '#97d43b' : '#2196F3' },
             ]}
             onPress={() => setFilter('Completed')}
             rippleColor="rgba(255, 255, 255, 0.3)"
@@ -124,7 +124,7 @@ export default function AdminTaskStatusScreen({ navigation }) {
           <TouchableRipple
             style={[
               styles.filterButton,
-              { backgroundColor: filter === 'Pending' ? '#ff9100' : '#ddd' },
+              { backgroundColor: filter === 'Pending' ? '#ff9100' : '#2196F3' },
             ]}
             onPress={() => setFilter('Pending')}
             rippleColor="rgba(255, 255, 255, 0.3)"
