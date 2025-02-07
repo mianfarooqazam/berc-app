@@ -14,7 +14,6 @@ import {
   Chip,
   Text,
   Card,
-  Button,
 } from 'react-native-paper';
 import {
   DatePickerModal,
@@ -22,7 +21,7 @@ import {
 } from 'react-native-paper-dates';
 import Toast from 'react-native-toast-message';
 import AppHeader from '../../components/Header/AppHeader'; // adjust the path as needed
-import { collection, getDocs, addDoc } from 'firebase/firestore';
+import { collection, getDocs, addDoc, query, where } from 'firebase/firestore';
 import { db, auth } from '../../firebase'; // Ensure you export your Firestore instance and auth
 
 // Register a complete English translation for react-native-paper-dates.
@@ -40,11 +39,36 @@ registerTranslation('en', {
 });
 
 export default function AdminTaskScreen({ navigation }) {
-  // Get the logged in user details
+  // Get the currently logged in user from auth.
   const currentUser = auth.currentUser;
-  const assignedBy = currentUser
-    ? currentUser.displayName || currentUser.email
-    : 'Admin';
+  // State to hold the admin's name from the employees collection.
+  const [assignedBy, setAssignedBy] = useState('');
+
+  // Fetch the currently logged-in user's name from the employees collection.
+  useEffect(() => {
+    async function fetchAssignedBy() {
+      if (currentUser && currentUser.email) {
+        try {
+          const q = query(
+            collection(db, 'employees'),
+            where('employee_email', '==', currentUser.email)
+          );
+          const querySnapshot = await getDocs(q);
+          if (!querySnapshot.empty) {
+            const adminData = querySnapshot.docs[0].data();
+            setAssignedBy(adminData.name);
+          } else {
+            // Fallback: use the username from the email
+            setAssignedBy(currentUser.email.split('@')[0]);
+          }
+        } catch (error) {
+          console.error('Error fetching assignedBy from employees:', error);
+          setAssignedBy(currentUser.email.split('@')[0]);
+        }
+      }
+    }
+    fetchAssignedBy();
+  }, [currentUser]);
 
   const [employees, setEmployees] = useState([]);
   const [employeeSearch, setEmployeeSearch] = useState('');
@@ -146,7 +170,7 @@ export default function AdminTaskScreen({ navigation }) {
         comments: comments,
         // Save the deadline as a Date object (Firestore will convert it to a timestamp)
         deadline: deadline,
-        assigned_by: assignedBy, // Save the assigner (logged in user)
+        assigned_by: assignedBy, // Save the assigner (name from employees collection)
       });
       console.log('Task submitted successfully!');
       Toast.show({
@@ -199,7 +223,7 @@ export default function AdminTaskScreen({ navigation }) {
           <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
         }
       >
-        {/* Display the logged in user in a Card */}
+        {/* Display the logged in user's name in a Card */}
         <Card style={styles.assignedByCard}>
           <Card.Content>
             <Text style={styles.assignedByText}>

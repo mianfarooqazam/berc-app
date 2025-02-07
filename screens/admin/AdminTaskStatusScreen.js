@@ -36,7 +36,7 @@ export default function AdminTaskStatusScreen({ navigation }) {
   };
 
   // Fetch tasks from Firestore and assign a random status for demo purposes.
-  // Also reverse the array so that the last task added appears on top.
+  // Reverse the array so that the last task added appears on top.
   const fetchTasks = async () => {
     try {
       const querySnapshot = await getDocs(collection(db, 'assign_tasks'));
@@ -44,10 +44,10 @@ export default function AdminTaskStatusScreen({ navigation }) {
         .map((doc) => ({
           id: doc.id,
           ...doc.data(),
-          // Assign a random status only once for consistency
+          // Assign a random status only once for demo consistency
           status: Math.random() < 0.5 ? 'Completed' : 'Pending',
         }))
-        .reverse(); // Reverse the list so that the last added task is on top
+        .reverse();
       setTasks(tasksData);
     } catch (error) {
       console.error('Error fetching tasks:', error);
@@ -139,12 +139,10 @@ export default function AdminTaskStatusScreen({ navigation }) {
                 <Text style={styles.fieldValue}>{task.employee_name}</Text>
               </View>
               {/* Assigned By */}
-              {task.assigned_by && (
-                <View style={styles.fieldRow}>
-                  <Text style={styles.fieldLabel}>Assigned By: </Text>
-                  <Text style={styles.fieldValue}>{task.assigned_by}</Text>
-                </View>
-              )}
+              <View style={styles.fieldRow}>
+                <Text style={styles.fieldLabel}>Assigned By: </Text>
+                <Text style={styles.fieldValue}>{task.assigned_by || 'Unknown'}</Text>
+              </View>
               {/* Priority */}
               <View style={styles.fieldRow}>
                 <Text style={styles.fieldLabel}>Priority: </Text>
@@ -212,7 +210,7 @@ const styles = StyleSheet.create({
   filterButtonText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#fff', // White text for all buttons
+    color: '#fff',
   },
   card: {
     width: '90%',
@@ -227,7 +225,6 @@ const styles = StyleSheet.create({
     top: 8,
     right: 8,
   },
-  // Updated taskNumber style for a blue background
   taskNumber: {
     backgroundColor: '#2196F3',
     color: '#fff',
