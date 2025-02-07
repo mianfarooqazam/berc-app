@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { StyleSheet, ScrollView, View, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Card, Text, Chip, TouchableRipple } from 'react-native-paper';
+import { Card, Text, Chip, TouchableRipple, Portal, Dialog, Button } from 'react-native-paper';
 import AppHeader from '../../components/Header/AppHeader'; // adjust the path as needed
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../../firebase'; // Ensure you export your Firestore instance
@@ -26,6 +26,8 @@ export default function AdminTaskStatusScreen({ navigation }) {
   const [tasks, setTasks] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const [filter, setFilter] = useState('All'); // 'All' | 'Completed' | 'Pending'
+  const [selectedTask, setSelectedTask] = useState(null);
+  const [visible, setVisible] = useState(false);
 
   const handleMenuPress = () => {
     navigation.openDrawer();
@@ -80,6 +82,12 @@ export default function AdminTaskStatusScreen({ navigation }) {
     return task.status === filter;
   });
 
+  // Handle card press to show modal
+  const handleCardPress = (task) => {
+    setSelectedTask(task);
+    setVisible(true);
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <AppHeader
@@ -127,7 +135,11 @@ export default function AdminTaskStatusScreen({ navigation }) {
 
         {/* Task Cards */}
         {filteredTasks.map((task, index) => (
-          <Card key={task.id} style={styles.card}>
+          <Card 
+            key={task.id} 
+            style={styles.card}
+            onPress={() => handleCardPress(task)}
+          >
             {/* Task number in top right */}
             <View style={styles.cardHeader}>
               <Text style={styles.taskNumber}>#{index + 1}</Text>
@@ -180,6 +192,24 @@ export default function AdminTaskStatusScreen({ navigation }) {
           </Card>
         ))}
       </ScrollView>
+
+      {/* Modal to display Task Name and Comments */}
+      <Portal>
+        <Dialog visible={visible} onDismiss={() => setVisible(false)}>
+          <Dialog.Title>Task Details</Dialog.Title>
+          <Dialog.Content>
+            <Text>
+              Task Name: <Text style={{ fontWeight: 'bold' }}>{selectedTask?.task_name}</Text>
+            </Text>
+            <Text style={{ marginTop: 10 }}>
+              Comments: {selectedTask?.comment || 'No comments available'}
+            </Text>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setVisible(false)}>Close</Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
     </SafeAreaView>
   );
 }
