@@ -138,6 +138,13 @@ export default function AdminTaskStatusScreen({ navigation }) {
                 <Text style={styles.fieldLabel}>Assigned To: </Text>
                 <Text style={styles.fieldValue}>{task.employee_name}</Text>
               </View>
+              {/* Assigned By */}
+              {task.assigned_by && (
+                <View style={styles.fieldRow}>
+                  <Text style={styles.fieldLabel}>Assigned By: </Text>
+                  <Text style={styles.fieldValue}>{task.assigned_by}</Text>
+                </View>
+              )}
               {/* Priority */}
               <View style={styles.fieldRow}>
                 <Text style={styles.fieldLabel}>Priority: </Text>
@@ -220,7 +227,7 @@ const styles = StyleSheet.create({
     top: 8,
     right: 8,
   },
-  // Updated taskNumber style for a blue background (same as AdminEventsScreen)
+  // Updated taskNumber style for a blue background
   taskNumber: {
     backgroundColor: '#2196F3',
     color: '#fff',

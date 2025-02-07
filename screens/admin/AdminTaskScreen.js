@@ -13,6 +13,8 @@ import {
   Title,
   Chip,
   Text,
+  Card,
+  Button,
 } from 'react-native-paper';
 import {
   DatePickerModal,
@@ -21,7 +23,7 @@ import {
 import Toast from 'react-native-toast-message';
 import AppHeader from '../../components/Header/AppHeader'; // adjust the path as needed
 import { collection, getDocs, addDoc } from 'firebase/firestore';
-import { db } from '../../firebase'; // Ensure you export your Firestore instance
+import { db, auth } from '../../firebase'; // Ensure you export your Firestore instance and auth
 
 // Register a complete English translation for react-native-paper-dates.
 registerTranslation('en', {
@@ -38,6 +40,12 @@ registerTranslation('en', {
 });
 
 export default function AdminTaskScreen({ navigation }) {
+  // Get the logged in user details
+  const currentUser = auth.currentUser;
+  const assignedBy = currentUser
+    ? currentUser.displayName || currentUser.email
+    : 'Admin';
+
   const [employees, setEmployees] = useState([]);
   const [employeeSearch, setEmployeeSearch] = useState('');
   const [employeeSuggestions, setEmployeeSuggestions] = useState([]);
@@ -138,6 +146,7 @@ export default function AdminTaskScreen({ navigation }) {
         comments: comments,
         // Save the deadline as a Date object (Firestore will convert it to a timestamp)
         deadline: deadline,
+        assigned_by: assignedBy, // Save the assigner (logged in user)
       });
       console.log('Task submitted successfully!');
       Toast.show({
@@ -190,6 +199,15 @@ export default function AdminTaskScreen({ navigation }) {
           <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
         }
       >
+        {/* Display the logged in user in a Card */}
+        <Card style={styles.assignedByCard}>
+          <Card.Content>
+            <Text style={styles.assignedByText}>
+              Assigned by: {assignedBy}
+            </Text>
+          </Card.Content>
+        </Card>
+
         {/* Employee Auto-Suggest Container */}
         <View style={styles.autoSuggestContainer}>
           <TextInput
@@ -312,6 +330,17 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     paddingBottom: 20,
   },
+  assignedByCard: {
+    backgroundColor: '#f8f8ff',
+    marginBottom: 20,
+    elevation: 2,
+    borderRadius: 8,
+  },
+  assignedByText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+  },
   autoSuggestContainer: {
     position: 'relative',
     marginBottom: 15,
@@ -363,7 +392,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 20,
   },
-  // When a deadline is selected, use a red background.
   deadlineButtonSelected: {
     backgroundColor: 'red',
   },
