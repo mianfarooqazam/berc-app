@@ -29,7 +29,7 @@ export default function LoginScreen({ navigation, route }) {
   const [errorMsg, setErrorMsg] = useState(''); // State for error message
 
   // List of admin UIDs
-  const adminUIDs = ['HOm9vRZimzgAAQhIImK2gykGNzM2', 'S8HdFutKGdNV3A0T60kfJn5mg7E3'];
+  const adminUIDs = ['s9jwNBC6l0P16oi0YJ5THAYcgom2'];
 
   const onLogin = async () => {
     setLoading(true);
