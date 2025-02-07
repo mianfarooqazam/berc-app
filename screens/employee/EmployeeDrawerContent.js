@@ -1,13 +1,37 @@
 // screens/employee/EmployeeDrawerContent.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Drawer, Text, Divider } from 'react-native-paper';
 import { Home, Calendar1, User, LogOut, CircleAlert } from 'lucide-react-native';
+import { collection, query, where, getDocs } from 'firebase/firestore';
+import { db } from '../../firebase'; // Make sure the path is correct
 
 export default function EmployeeDrawerContent({ navigation, email }) {
   const [active, setActive] = useState("home");
   const currentEmail = email || "employee@example.com";
+  const [employeeId, setEmployeeId] = useState(null);
+
+  useEffect(() => {
+    // Query the "employees" collection for a document where employee_email matches the logged-in email.
+    async function fetchEmployeeId() {
+      try {
+        const q = query(
+          collection(db, "employees"),
+          where("employee_email", "==", currentEmail)
+        );
+        const querySnapshot = await getDocs(q);
+        if (!querySnapshot.empty) {
+          // Extract employee_id from the first matching document.
+          const employeeData = querySnapshot.docs[0].data();
+          setEmployeeId(employeeData.employee_id);
+        }
+      } catch (error) {
+        console.error("Error fetching employee ID:", error);
+      }
+    }
+    fetchEmployeeId();
+  }, [currentEmail]);
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -20,6 +44,10 @@ export default function EmployeeDrawerContent({ navigation, email }) {
           />
           <Text style={styles.email}>{currentEmail}</Text>
           <Text style={styles.designation}>Employee</Text>
+          {/* Display the employee ID if it was fetched */}
+          {employeeId && (
+            <Text style={styles.employeeId}>Employee ID: {employeeId}</Text>
+          )}
         </View>
 
         <Divider style={styles.divider} />
@@ -112,6 +140,11 @@ const styles = StyleSheet.create({
   designation: {
     fontSize: 14,
     color: "#888",
+  },
+  employeeId: {
+    fontSize: 14,
+    color: "#444",
+    marginTop: 5,
   },
   drawerSection: {
     marginTop: 10,
