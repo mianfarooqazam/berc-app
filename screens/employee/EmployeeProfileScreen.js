@@ -1,20 +1,36 @@
 // screens/employee/EmployeeProfileScreen.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Text, TextInput, TouchableRipple } from 'react-native-paper';
+import {
+  Text,
+  TextInput,
+  TouchableRipple,
+  Card,
+  Button,
+} from 'react-native-paper';
 import AppHeader from '../../components/Header/AppHeader';
 import Toast from 'react-native-toast-message';
-import { 
-  updatePassword, 
-  signOut, 
-  EmailAuthProvider, 
-  reauthenticateWithCredential 
+import {
+  updatePassword,
+  signOut,
+  EmailAuthProvider,
+  reauthenticateWithCredential,
 } from 'firebase/auth';
 import { auth } from '../../firebase'; // Adjust the path as needed
+import { collection, query, where, getDocs } from 'firebase/firestore';
+import { db } from '../../firebase';
 
 export default function EmployeeProfileScreen({ navigation, route }) {
   const { email } = route.params || {};
+
+  // States for employee info
+  const [employeeName, setEmployeeName] = useState('');
+  const [employeeId, setEmployeeId] = useState('');
+  const [employeeDesignation, setEmployeeDesignation] = useState('');
+
+  // State to control whether to show the password form
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
 
   // States for verification and password update
   const [isVerified, setIsVerified] = useState(false);
@@ -23,6 +39,30 @@ export default function EmployeeProfileScreen({ navigation, route }) {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [verifyLoading, setVerifyLoading] = useState(false);
   const [updateLoading, setUpdateLoading] = useState(false);
+
+  // Fetch employee data from Firestore based on the email
+  useEffect(() => {
+    async function fetchEmployeeData() {
+      try {
+        const q = query(
+          collection(db, "employees"),
+          where("employee_email", "==", email)
+        );
+        const querySnapshot = await getDocs(q);
+        if (!querySnapshot.empty) {
+          const data = querySnapshot.docs[0].data();
+          setEmployeeName(data.name || '');
+          setEmployeeId(data.employee_id || '');
+          setEmployeeDesignation(data.designation || 'Employee');
+        }
+      } catch (error) {
+        console.error("Error fetching employee data: ", error);
+      }
+    }
+    if (email) {
+      fetchEmployeeData();
+    }
+  }, [email]);
 
   // Handler to verify the current password using Firebase reauthentication
   const handleVerifyPassword = async () => {
@@ -96,9 +136,8 @@ export default function EmployeeProfileScreen({ navigation, route }) {
         type: 'success',
         text1: 'Password updated successfully',
       });
-      // Optionally sign out the user after password change
+      // Optionally sign out after password change
       await signOut(auth);
-      // Redirect to the RoleSelectionScreen
       navigation.reset({
         index: 0,
         routes: [{ name: 'RoleSelection' }],
@@ -119,73 +158,99 @@ export default function EmployeeProfileScreen({ navigation, route }) {
       <AppHeader
         title="My Profile"
         onMenuPress={() => navigation.toggleDrawer()}
-        onNotificationPress={() => {
-          console.log('Notification pressed');
-        }}
+        onNotificationPress={() => console.log('Notification pressed')}
       />
 
       <View style={styles.content}>
-        
+        {/* Profile Card */}
+        <Card style={styles.card}>
+          <Card.Content>
+            <Text style={styles.profileLabel}>
+              Name: <Text style={styles.profileValue}>{employeeName}</Text>
+            </Text>
+            <Text style={styles.profileLabel}>
+              Designation: <Text style={styles.profileValue}>{employeeDesignation}</Text>
+            </Text>
+            <Text style={styles.profileLabel}>
+              Employee ID: <Text style={styles.profileValue}>{employeeId}</Text>
+            </Text>
+            <Text style={styles.profileLabel}>
+              Email: <Text style={styles.profileValue}>{email}</Text>
+            </Text>
+          </Card.Content>
+        </Card>
 
-        {/* Show the current password input until verified */}
-        {!isVerified && (
-          <>
-            <Text style={styles.subHeading}>Verify Current Password</Text>
-            <TextInput
-              mode="outlined"
-              label="Current Password"
-              value={currentPassword}
-              onChangeText={setCurrentPassword}
-              secureTextEntry
-              autoCapitalize="none"
-              style={styles.input}
-            />
-            <TouchableRipple
-              style={styles.button}
-              onPress={handleVerifyPassword}
-              rippleColor="rgba(0, 0, 0, 0.1)"
-              disabled={verifyLoading}
-            >
-              <Text style={styles.buttonText}>
-                {verifyLoading ? 'Verifying...' : 'Verify Password'}
-              </Text>
-            </TouchableRipple>
-          </>
+        {/* Change Password Button */}
+        {!showPasswordForm && (
+          <Button
+            mode="contained"
+            onPress={() => setShowPasswordForm(true)}
+            style={styles.changePasswordButton}
+          >
+            Change Password
+          </Button>
         )}
 
-        {/* Once verified, display the new password fields */}
-        {isVerified && (
-          <>
-            <Text style={styles.subHeading}>Change Password</Text>
-            <TextInput
-              mode="outlined"
-              label="New Password"
-              value={newPassword}
-              onChangeText={setNewPassword}
-              secureTextEntry
-              autoCapitalize="none"
-              style={styles.input}
-            />
-            <TextInput
-              mode="outlined"
-              label="Confirm New Password"
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
-              secureTextEntry
-              autoCapitalize="none"
-              style={styles.input}
-            />
-            <TouchableRipple
-              style={styles.button}
-              onPress={handleChangePassword}
-              rippleColor="rgba(0, 0, 0, 0.1)"
-              disabled={updateLoading}
-            >
-              <Text style={styles.buttonText}>
-                {updateLoading ? 'Updating...' : 'Update Password'}
-              </Text>
-            </TouchableRipple>
-          </>
+        {/* Password Change Form */}
+        {showPasswordForm && (
+          <View style={styles.passwordForm}>
+            {!isVerified ? (
+              <>
+                <Text style={styles.subHeading}>Verify Current Password</Text>
+                <TextInput
+                  mode="outlined"
+                  label="Current Password"
+                  value={currentPassword}
+                  onChangeText={setCurrentPassword}
+                  secureTextEntry
+                  autoCapitalize="none"
+                  style={styles.input}
+                />
+                <TouchableRipple
+                  style={styles.button}
+                  onPress={handleVerifyPassword}
+                  rippleColor="rgba(0, 0, 0, 0.1)"
+                  disabled={verifyLoading}
+                >
+                  <Text style={styles.buttonText}>
+                    {verifyLoading ? 'Verifying...' : 'Verify Password'}
+                  </Text>
+                </TouchableRipple>
+              </>
+            ) : (
+              <>
+                <Text style={styles.subHeading}>Change Password</Text>
+                <TextInput
+                  mode="outlined"
+                  label="New Password"
+                  value={newPassword}
+                  onChangeText={setNewPassword}
+                  secureTextEntry
+                  autoCapitalize="none"
+                  style={styles.input}
+                />
+                <TextInput
+                  mode="outlined"
+                  label="Confirm New Password"
+                  value={confirmPassword}
+                  onChangeText={setConfirmPassword}
+                  secureTextEntry
+                  autoCapitalize="none"
+                  style={styles.input}
+                />
+                <TouchableRipple
+                  style={styles.button}
+                  onPress={handleChangePassword}
+                  rippleColor="rgba(0, 0, 0, 0.1)"
+                  disabled={updateLoading}
+                >
+                  <Text style={styles.buttonText}>
+                    {updateLoading ? 'Updating...' : 'Update Password'}
+                  </Text>
+                </TouchableRipple>
+              </>
+            )}
+          </View>
         )}
       </View>
     </SafeAreaView>
@@ -199,29 +264,41 @@ const styles = StyleSheet.create({
   },
   content: { 
     flex: 1,
-    justifyContent: 'center', 
-    alignItems: 'center',
     padding: 20,
     width: '100%',
   },
-  heading: { 
-    fontSize: 28, 
-    fontWeight: 'bold', 
+  card: {
+    backgroundColor: '#f8f8ff',
     marginBottom: 20,
+    elevation: 2,
   },
-  text: { 
-    fontSize: 18,
-    marginBottom: 20,
+  profileLabel: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 5,
+  },
+  profileValue: {
+    fontSize: 14,
+    fontWeight: 'normal',
+    color: '#666',
+  },
+  changePasswordButton: {
+    marginVertical: 10,
+  },
+  passwordForm: {
+    marginTop: 20,
   },
   subHeading: {
     fontSize: 20,
     fontWeight: '600',
     marginBottom: 10,
+    textAlign: 'center',
   },
   input: {
     width: '100%',
     marginBottom: 10,
-    backgroundColor: '#f8f8ff',
+    backgroundColor: '#fff',
   },
   button: {
     marginTop: 20,
@@ -234,5 +311,6 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#fff',
     fontSize: 16,
+    textAlign: 'center',
   },
 });
