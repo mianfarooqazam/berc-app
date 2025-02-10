@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Text } from 'react-native-paper';
-import {  db } from '../../firebase';
-import AppHeader from '../../components/Header/AppHeader';
+import { Text, Card, Title, Paragraph } from 'react-native-paper';
 import { collection, query, where, getDocs } from 'firebase/firestore';
+import { db } from '../../firebase';
+import AppHeader from '../../components/Header/AppHeader';
 
 export default function EmpDashboard({ navigation, route }) {
-  // Expect an email passed via route params; fallback value provided if not present.
+  // Extract email from route params with a fallback value.
   const { email } = route.params || { email: 'employee@example.com' };
   const [employeeName, setEmployeeName] = useState('');
 
@@ -24,7 +24,6 @@ export default function EmpDashboard({ navigation, route }) {
           const employeeData = querySnapshot.docs[0].data();
           setEmployeeName(employeeData.name);
         } else {
-          // Fallback name if no matching document is found.
           setEmployeeName('Employee');
         }
       } catch (error) {
@@ -35,7 +34,6 @@ export default function EmpDashboard({ navigation, route }) {
     fetchEmployeeData();
   }, [email]);
 
-
   return (
     <SafeAreaView style={styles.container}>
       {/* Shared App Header */}
@@ -45,14 +43,37 @@ export default function EmpDashboard({ navigation, route }) {
         onNotificationPress={() => console.log('Notification pressed')}
       />
 
-      {/* Main Content */}
+      {/* Content */}
       <View style={styles.content}>
         <Text style={styles.welcomeText}>
           Welcome, {employeeName || 'Employee'}
         </Text>
-      </View>
 
-     
+        {/* Full-width card for Total Tasks Assigned */}
+        <Card style={[styles.taskCardFull, { backgroundColor: '#1e90ff' }]}>
+          <Card.Content>
+            <Title style={styles.taskCardTitle}>
+              Total Tasks Assigned: 50
+            </Title>
+          </Card.Content>
+        </Card>
+
+        {/* Row of two cards for Completed and Pending Tasks */}
+        <View style={styles.cardsRow}>
+          <Card style={[styles.taskCardHalf, { backgroundColor: '#97d43b' }]}>
+            <Card.Content>
+              <Title style={styles.taskCardTitle}>Completed</Title>
+              <Paragraph style={styles.taskCardValue}>30</Paragraph>
+            </Card.Content>
+          </Card>
+          <Card style={[styles.taskCardHalf, { backgroundColor: '#ff9100' }]}>
+            <Card.Content>
+              <Title style={styles.taskCardTitle}>Pending</Title>
+              <Paragraph style={styles.taskCardValue}>20</Paragraph>
+            </Card.Content>
+          </Card>
+        </View>
+      </View>
     </SafeAreaView>
   );
 }
@@ -72,15 +93,30 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 20,
   },
-  logoutButton: {
-    paddingVertical: 12,
-    alignItems: 'center',
-    backgroundColor: '#97d43b',
-    borderRadius: 4,
-    marginTop: 'auto',
+  taskCardFull: {
+    width: '100%',
+    borderRadius: 8,
+    marginBottom: 20,
   },
-  logoutText: {
+  cardsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  taskCardHalf: {
+    width: '45%',
+    borderRadius: 8,
+  },
+  taskCardTitle: {
     color: '#fff',
     fontSize: 16,
+    textAlign: 'center',
+    fontWeight: 'bold',
+  },
+  taskCardValue: {
+    color: '#fff',
+    fontSize: 20,
+    textAlign: 'center',
+    marginTop: 10,
   },
 });
