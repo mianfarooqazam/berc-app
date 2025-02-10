@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import React, { useEffect, useState, useRef } from 'react';
+import { StyleSheet, View, Animated } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text, Card, Title, Paragraph } from 'react-native-paper';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -7,11 +7,35 @@ import { auth, db } from '../../firebase'; // adjust the path as needed
 import AppHeader from '../../components/Header/AppHeader';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 
+// Create an Animated version of the Card component
+const AnimatedCard = Animated.createAnimatedComponent(Card);
+
 export default function AdminDashboard({ navigation, route }) {
   // Extract email from route params with a fallback value.
   const { email } = route.params || { email: 'admin@example.com' };
   const currentEmail = email || 'admin@example.com';
   const [employeeName, setEmployeeName] = useState('');
+
+  // Animation values for each card
+  const completedScale = useRef(new Animated.Value(1)).current;
+  const pendingScale = useRef(new Animated.Value(1)).current;
+
+  // Animation helper functions
+  const handlePressIn = (animatedValue) => {
+    Animated.spring(animatedValue, {
+      toValue: 0.95,
+      friction: 3,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handlePressOut = (animatedValue) => {
+    Animated.spring(animatedValue, {
+      toValue: 1,
+      friction: 3,
+      useNativeDriver: true,
+    }).start();
+  };
 
   // Protect the route using auth state listener (optional)
   useEffect(() => {
@@ -81,20 +105,46 @@ export default function AdminDashboard({ navigation, route }) {
           </Card.Content>
         </Card>
 
-        {/* Row of two cards for Completed Tasks and Pending Tasks */}
+        {/* Row of two animated cards for Completed Tasks and Pending Tasks */}
         <View style={styles.cardsRow}>
-          <Card style={[styles.taskCardHalf, { backgroundColor: '#97d43b' }]}>
-            <Card.Content>
-              <Title style={styles.taskCardTitle}>Completed</Title>
-              <Paragraph style={styles.taskCardValue}>80</Paragraph>
-            </Card.Content>
-          </Card>
-          <Card style={[styles.taskCardHalf, { backgroundColor: '#ff9100' }]}>
-            <Card.Content>
-              <Title style={styles.taskCardTitle}>Pending</Title>
-              <Paragraph style={styles.taskCardValue}>40</Paragraph>
-            </Card.Content>
-          </Card>
+          <View style={[styles.cardContainer, { marginRight: 10 }]}>
+            <AnimatedCard
+              onPressIn={() => handlePressIn(completedScale)}
+              onPressOut={() => handlePressOut(completedScale)}
+              onPress={() =>
+                navigation.navigate('TaskStatus', { status: 'completed' })
+              }
+              style={[
+                { transform: [{ scale: completedScale }] },
+                styles.taskCardHalf,
+                { backgroundColor: '#97d43b' },
+              ]}
+            >
+              <Card.Content>
+                <Title style={styles.taskCardTitleBlack}>Completed Tasks</Title>
+                <Paragraph style={styles.taskCardValueBlack}>80</Paragraph>
+              </Card.Content>
+            </AnimatedCard>
+          </View>
+          <View style={styles.cardContainer}>
+            <AnimatedCard
+              onPressIn={() => handlePressIn(pendingScale)}
+              onPressOut={() => handlePressOut(pendingScale)}
+              onPress={() =>
+                navigation.navigate('TaskStatus', { status: 'pending' })
+              }
+              style={[
+                { transform: [{ scale: pendingScale }] },
+                styles.taskCardHalf,
+                { backgroundColor: '#ff9100' },
+              ]}
+            >
+              <Card.Content>
+                <Title style={styles.taskCardTitleBlack}>Pending Tasks</Title>
+                <Paragraph style={styles.taskCardValueBlack}>40</Paragraph>
+              </Card.Content>
+            </AnimatedCard>
+          </View>
         </View>
       </View>
     </SafeAreaView>
@@ -108,10 +158,9 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   content: {
-    // Change from center alignment to left alignment
     alignItems: 'flex-start',
     marginTop: 40,
-    width: '100%', // ensures the children use the full width for proper left alignment
+    width: '100%',
   },
   welcomeText: {
     fontSize: 22,
@@ -122,7 +171,7 @@ const styles = StyleSheet.create({
   },
   employeeNameText: {
     fontSize: 30,
-    fontWeight: 'bold', // keep employee name bold (or adjust as desired)
+    fontWeight: 'bold',
     marginBottom: 20,
     textAlign: 'left',
     width: '100%',
@@ -134,11 +183,12 @@ const styles = StyleSheet.create({
   },
   cardsRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     width: '100%',
   },
+  cardContainer: {
+    flex: 1,
+  },
   taskCardHalf: {
-    width: '45%',
     borderRadius: 8,
   },
   taskCardTitle: {
@@ -147,10 +197,18 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: 'bold',
   },
-  taskCardValue: {
+  taskCardTitleBlack: {
+    color: '#fff',
+    fontSize: 16,
+    textAlign: 'left',
+    fontWeight: 'bold',
+    marginVertical: 0,
+  },
+  taskCardValueBlack: {
     color: '#fff',
     fontSize: 20,
-    textAlign: 'center',
-    marginTop: 10,
+    textAlign: 'left',
+    marginTop: 2,
+    fontWeight: 'normal',
   },
 });

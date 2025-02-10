@@ -1,4 +1,3 @@
-// screens/admin/AdminDrawerContent.js
 import React, { useState, useEffect } from "react";
 import { View, StyleSheet, Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -15,13 +14,14 @@ import {
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../../firebase"; // Ensure the correct path to your firebase.js
 
-export default function AdminDrawerContent({ navigation, email, designation }) {
-  const [active, setActive] = useState("home");
+export default function AdminDrawerContent({ navigation, email, designation, state }) {
   const [employeeId, setEmployeeId] = useState(null);
   const [employeeName, setEmployeeName] = useState("");
-  // Initialize designation from props with a fallback of "Director"
   const currentEmail = email || "admin@example.com";
   const [employeeDesignation, setEmployeeDesignation] = useState(designation || "Director");
+
+  // Use the navigation state provided in props to determine the active route.
+  const currentRoute = state.routes[state.index].name;
 
   useEffect(() => {
     // Function to fetch the employee data if the logged-in email matches an employee_email in Firestore
@@ -56,12 +56,6 @@ export default function AdminDrawerContent({ navigation, email, designation }) {
             source={require("../../assets/profile.webp")}
             style={styles.profilePicture}
           />
-          {/* Display in the order:
-              1. Name (bold)
-              2. Designation (bold)
-              3. Employee ID (small, non-bold)
-              4. Email (small, non-bold)
-          */}
           {employeeName ? (
             <Text style={styles.username}>{employeeName}</Text>
           ) : null}
@@ -79,52 +73,37 @@ export default function AdminDrawerContent({ navigation, email, designation }) {
           <Drawer.Item
             label="Home"
             icon={({ size, color }) => <Home size={size} color={color} />}
-            active={active === "home"}
-            onPress={() => {
-              setActive("home");
-              navigation.navigate("Home");
-            }}
-            style={active === "home" ? { borderRadius: 10 } : null}
+            active={currentRoute === "Home"}
+            onPress={() => navigation.navigate("Home")}
+            style={currentRoute === "Home" ? { borderRadius: 10 } : null}
           />
           <Drawer.Item
             label="Assign Task"
             icon={({ size, color }) => <Clipboard size={size} color={color} />}
-            active={active === "assign"}
-            onPress={() => {
-              setActive("assign");
-              navigation.navigate("AssignTask");
-            }}
-            style={active === "assign" ? { borderRadius: 10 } : null}
+            active={currentRoute === "AssignTask"}
+            onPress={() => navigation.navigate("AssignTask")}
+            style={currentRoute === "AssignTask" ? { borderRadius: 10 } : null}
           />
           <Drawer.Item
             label="Tasks Status"
             icon={({ size, color }) => <CircleAlert size={size} color={color} />}
-            active={active === "status"}
-            onPress={() => {
-              setActive("status");
-              navigation.navigate("TaskStatus");
-            }}
-            style={active === "status" ? { borderRadius: 10 } : null}
+            active={currentRoute === "TaskStatus"}
+            onPress={() => navigation.navigate("TaskStatus")}
+            style={currentRoute === "TaskStatus" ? { borderRadius: 10 } : null}
           />
           <Drawer.Item
             label="Upcoming Events"
             icon={({ size, color }) => <Calendar1 size={size} color={color} />}
-            active={active === "events"}
-            onPress={() => {
-              setActive("events");
-              navigation.navigate("Events");
-            }}
-            style={active === "events" ? { borderRadius: 10 } : null}
+            active={currentRoute === "Events"}
+            onPress={() => navigation.navigate("Events")}
+            style={currentRoute === "Events" ? { borderRadius: 10 } : null}
           />
           <Drawer.Item
             label="Employees"
             icon={({ size, color }) => <Users size={size} color={color} />}
-            active={active === "employee"}
-            onPress={() => {
-              setActive("employee");
-              navigation.navigate("Employee");
-            }}
-            style={active === "employee" ? { borderRadius: 10 } : null}
+            active={currentRoute === "Employee"}
+            onPress={() => navigation.navigate("Employee")}
+            style={currentRoute === "Employee" ? { borderRadius: 10 } : null}
           />
         </Drawer.Section>
 
@@ -133,12 +112,9 @@ export default function AdminDrawerContent({ navigation, email, designation }) {
           <Drawer.Item
             label="My Profile"
             icon={({ size, color }) => <User size={size} color={color} />}
-            active={active === "profile"}
-            onPress={() => {
-              setActive("profile");
-              navigation.navigate("MyProfile");
-            }}
-            style={active === "profile" ? { borderRadius: 10 } : null}
+            active={currentRoute === "MyProfile"}
+            onPress={() => navigation.navigate("MyProfile")}
+            style={currentRoute === "MyProfile" ? { borderRadius: 10 } : null}
           />
           <Drawer.Item
             label="Logout"
@@ -178,24 +154,24 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#000",
     marginBottom: 5,
-    fontWeight: "bold", // Bold for Name
+    fontWeight: "bold",
   },
   designation: {
     fontSize: 16,
     color: "#000",
-    fontWeight: "bold", // Bold for Designation
+    fontWeight: "bold",
   },
   employeeId: {
     fontSize: 8,
     color: "#444",
     marginBottom: 5,
-    fontWeight: "normal", // Not bold
+    fontWeight: "normal",
   },
   email: {
     fontSize: 8,
     color: "#444",
     marginBottom: 5,
-    fontWeight: "normal", // Not bold
+    fontWeight: "normal",
   },
   drawerSection: {
     marginTop: 10,
