@@ -1,13 +1,17 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text, TouchableRipple } from 'react-native-paper';
-import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { auth } from '../../firebase'; // adjust the path as needed
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth, db } from '../../firebase'; // adjust the path as needed
 import AppHeader from '../../components/Header/AppHeader'; // import the reusable header
+import { collection, query, where, getDocs } from 'firebase/firestore';
 
 export default function AdminDashboard({ navigation, route }) {
+  // Extract email from route params with a fallback value.
   const { email } = route.params || { email: 'admin@example.com' };
+  const currentEmail = email || 'admin@example.com';
+  const [employeeName, setEmployeeName] = useState('');
 
   // Protect the route using auth state listener (optional)
   useEffect(() => {
@@ -22,7 +26,29 @@ export default function AdminDashboard({ navigation, route }) {
     return unsubscribe;
   }, [navigation]);
 
-  
+  // Fetch employee data to get the user's name
+  useEffect(() => {
+    async function fetchEmployeeData() {
+      try {
+        const q = query(
+          collection(db, 'employees'),
+          where('employee_email', '==', currentEmail)
+        );
+        const querySnapshot = await getDocs(q);
+        if (!querySnapshot.empty) {
+          const employeeData = querySnapshot.docs[0].data();
+          setEmployeeName(employeeData.name);
+        } else {
+          // Fallback to "Admin" if no matching document is found
+          setEmployeeName('Admin');
+        }
+      } catch (error) {
+        console.error('Error fetching employee data:', error);
+        setEmployeeName('Admin');
+      }
+    }
+    fetchEmployeeData();
+  }, [currentEmail]);
 
   // Example press handlers
   const handleMenuPress = () => {
@@ -45,16 +71,11 @@ export default function AdminDashboard({ navigation, route }) {
 
       {/* Content */}
       <View style={styles.content}>
-        <Text style={styles.welcomeText}>Welcome, Admin!</Text>
-        <Text style={styles.emailText}>Email: {email}</Text>
+        <Text style={styles.welcomeText}>
+          Welcome, {employeeName || 'Admin'}
+        </Text>
       </View>
 
-      {/*
-      Uncomment if you want a logout button here as well
-      <TouchableRipple style={styles.logoutButton} onPress={onLogout} rippleColor="rgba(0,0,0,0.1)">
-        <Text style={styles.logoutText}>Logout</Text>
-      </TouchableRipple>
-      */}
     </SafeAreaView>
   );
 }
@@ -73,9 +94,6 @@ const styles = StyleSheet.create({
     fontSize: 26,
     fontWeight: 'bold',
     marginBottom: 20,
-  },
-  emailText: {
-    fontSize: 18,
   },
   logoutButton: {
     paddingVertical: 12,
