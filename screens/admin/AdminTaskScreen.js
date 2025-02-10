@@ -152,8 +152,8 @@ export default function AdminTaskScreen({ navigation }) {
   // Example: "Saturday 21, January"
   const formattedDeadline = deadline
     ? `${deadline.toLocaleDateString('en-US', { weekday: 'long' })} ${deadline.getDate()}, ${deadline.toLocaleDateString('en-US', {
-        month: 'long',
-      })}`
+      month: 'long',
+    })}`
     : '';
 
   // Prepare today's date with the time reset to midnight
@@ -224,13 +224,13 @@ export default function AdminTaskScreen({ navigation }) {
         }
       >
         {/* Display the logged in user's name in a Card */}
-        <Card style={styles.assignedByCard}>
+        {/* <Card style={styles.assignedByCard}>
           <Card.Content>
             <Text style={styles.assignedByText}>
-              Assigned by: {assignedBy}
+              {assignedBy}
             </Text>
           </Card.Content>
-        </Card>
+        </Card> */}
 
         {/* Employee Auto-Suggest Container */}
         <View style={styles.autoSuggestContainer}>
@@ -259,6 +259,27 @@ export default function AdminTaskScreen({ navigation }) {
           )}
         </View>
 
+
+        {/* Task Name Input */}
+        <TextInput
+          label="Task Name"
+          value={taskName}
+          onChangeText={setTaskName}
+          mode="outlined"
+          style={styles.input}
+        />
+
+        {/* Comments Input */}
+        <TextInput
+          label="Comments"
+          value={comments}
+          onChangeText={setComments}
+          mode="outlined"
+          multiline
+          numberOfLines={4}
+          style={styles.input}
+        />
+
         {/* Priority Chips */}
         <View style={styles.chipsContainer}>
           {priorityOptions.map((option) => (
@@ -282,26 +303,6 @@ export default function AdminTaskScreen({ navigation }) {
             </Chip>
           ))}
         </View>
-
-        {/* Task Name Input */}
-        <TextInput
-          label="Task Name"
-          value={taskName}
-          onChangeText={setTaskName}
-          mode="outlined"
-          style={styles.input}
-        />
-
-        {/* Comments Input */}
-        <TextInput
-          label="Comments"
-          value={comments}
-          onChangeText={setComments}
-          mode="outlined"
-          multiline
-          numberOfLines={4}
-          style={styles.input}
-        />
 
         {/* Deadline Selection Button */}
         <TouchableRipple
