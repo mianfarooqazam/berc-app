@@ -12,7 +12,9 @@ const AppHeader = ({ title, onMenuPress, onNotificationPress }) => {
         style={styles.iconButton}
         rippleColor="rgba(0, 0, 0, 0.1)"
       >
-        <LayoutDashboard size={24} color="#000" />
+        <View style={styles.iconCircle}>
+          <LayoutDashboard size={24} color="#000" />
+        </View>
       </TouchableRipple>
 
       {/* Center: Screen Title */}
@@ -24,7 +26,9 @@ const AppHeader = ({ title, onMenuPress, onNotificationPress }) => {
         style={styles.iconButton}
         rippleColor="rgba(0, 0, 0, 0.1)"
       >
-        <Bell size={24} color="#000" />
+        <View style={styles.iconCircle}>
+          <Bell size={24} color="#000" />
+        </View>
       </TouchableRipple>
     </View>
   );
@@ -37,13 +41,17 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 10,
     paddingHorizontal: 15,
-    backgroundColor: 'transparent', // Set background to transparent
-    // Remove elevation and shadow properties if not needed
-    // elevation: 0,
-    // shadowColor: 'transparent',
+    backgroundColor: 'transparent',
   },
   iconButton: {
+    // Optionally, add additional styling here
+  },
+  iconCircle: {
+    backgroundColor: '#fff',
+    borderRadius: 50,
     padding: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   title: {
     fontSize: 20,
