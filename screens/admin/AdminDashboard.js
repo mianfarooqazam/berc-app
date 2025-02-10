@@ -69,14 +69,15 @@ export default function AdminDashboard({ navigation, route }) {
 
       {/* Content */}
       <View style={styles.content}>
-        <Text style={styles.welcomeText}>
-          Welcome, {employeeName || 'Admin'}
+        <Text style={styles.welcomeText}>Welcome!</Text>
+        <Text style={styles.employeeNameText}>
+          {employeeName || 'Admin'}
         </Text>
 
         {/* Full-width card for Total Tasks Assigned */}
         <Card style={[styles.taskCardFull, { backgroundColor: '#1e90ff' }]}>
           <Card.Content>
-            <Title style={styles.taskCardTitle}>Total Tasks Assigned: 120 </Title>
+            <Title style={styles.taskCardTitle}>Total Tasks Assigned: 120</Title>
           </Card.Content>
         </Card>
 
@@ -103,17 +104,28 @@ export default function AdminDashboard({ navigation, route }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f8ff',
+    backgroundColor: '#EFF1FB',
     padding: 20,
   },
   content: {
-    alignItems: 'center',
+    // Change from center alignment to left alignment
+    alignItems: 'flex-start',
     marginTop: 40,
+    width: '100%', // ensures the children use the full width for proper left alignment
   },
   welcomeText: {
-    fontSize: 26,
-    fontWeight: 'bold',
+    fontSize: 22,
+    fontWeight: '300', // light font weight for "Welcome!"
+    marginBottom: 10,
+    textAlign: 'left',
+    width: '100%',
+  },
+  employeeNameText: {
+    fontSize: 30,
+    fontWeight: 'bold', // keep employee name bold (or adjust as desired)
     marginBottom: 20,
+    textAlign: 'left',
+    width: '100%',
   },
   taskCardFull: {
     width: '100%',

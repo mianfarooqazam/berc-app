@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Text, TouchableRipple } from 'react-native-paper';
-import { Menu, Bell } from 'lucide-react-native';
+import { LayoutDashboard, Bell } from 'lucide-react-native';
 
 const AppHeader = ({ title, onMenuPress, onNotificationPress }) => {
   return (
@@ -12,7 +12,7 @@ const AppHeader = ({ title, onMenuPress, onNotificationPress }) => {
         style={styles.iconButton}
         rippleColor="rgba(0, 0, 0, 0.1)"
       >
-        <Menu size={24} color="#000" />
+        <LayoutDashboard size={24} color="#000" />
       </TouchableRipple>
 
       {/* Center: Screen Title */}
